@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from '../components/GlassCard';
+import { InfoTooltip } from '../components/InfoTooltip';
 import { 
   Stethoscope, 
   Clock, 
@@ -289,7 +290,10 @@ export const HospitalMonitor: React.FC = () => {
                        <span className="text-xl font-bold">{hospital.fairnessScore}%</span>
                     </div>
                     <div>
-                       <p className="text-xs text-slate-400 uppercase font-bold">{t('fairnessScore')}</p>
+                       <div className="flex items-center gap-1">
+                         <p className="text-xs text-slate-400 uppercase font-bold">{t('fairnessScore')}</p>
+                         <InfoTooltip text="রোগীদের ফিডব্যাক, ডাক্তার উপস্থিতি এবং ঔষধের প্রাপ্যতার ওপর ভিত্তি করে এই স্কোর দেওয়া হয়েছে।" />
+                       </div>
                        <div className="flex items-center gap-1 mt-1">
                           <span className="text-[10px] text-slate-500">{t('bribeRisk')}:</span>
                           {getBribeRiskBadge(hospital.bribeRisk)}

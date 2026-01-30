@@ -4,6 +4,7 @@ import { AppProvider, useApp } from './context/AppContext';
 import { CitizenLayout } from './layouts/CitizenLayout';
 import { AdminLayout } from './layouts/AdminLayout';
 import { RoleSwitcher } from './components/RoleSwitcher';
+import { SessionWarning } from './components/SessionWarning';
 import { Role } from './types';
 
 // Pages
@@ -140,6 +141,7 @@ const App: React.FC = () => {
     <AppProvider>
       <HashRouter>
         <AppRoutes />
+        <SessionWarning />
         <RoleSwitcher />
       </HashRouter>
     </AppProvider>

@@ -1,6 +1,7 @@
 import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from './GlassCard';
+import { InfoTooltip } from './InfoTooltip';
 import { 
   Building2, 
   MapPin, 
@@ -152,9 +153,12 @@ export const GovtProjectCard: React.FC<GovtProjectCardProps> = ({ project }) => 
                 {simulation.riskLevel} RISK
               </div>
 
-              <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold mb-1 uppercase flex items-center justify-center gap-1">
-                <BrainCircuit size={14} /> {t('aiEstimate')}
-              </p>
+              <div className="flex items-center justify-center gap-1 mb-1">
+                <p className="text-xs text-indigo-600 dark:text-indigo-400 font-semibold uppercase flex items-center gap-1">
+                  <BrainCircuit size={14} /> {t('aiEstimate')}
+                </p>
+                <InfoTooltip text="অতীতের প্রকল্পের খরচ, বর্তমান বাজারদর এবং সময়সীমার বিশ্লেষণের ভিত্তিতে এই ঝুঁকি ও খরচ নির্ণয় করা হয়েছে।" />
+              </div>
               <div className="text-2xl font-bold text-indigo-700 dark:text-indigo-300">
                 ৳{simulation.estimatedCost}
                 <span className="text-sm font-normal text-indigo-500/80 ml-1">{t('croreTaka')}</span>

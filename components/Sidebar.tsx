@@ -2,7 +2,7 @@ import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
 import { CITIZEN_NAV_ITEMS } from '../constants';
-import { X } from 'lucide-react';
+import { X, LogOut } from 'lucide-react';
 
 interface SidebarProps {
   isOpen: boolean;
@@ -10,7 +10,7 @@ interface SidebarProps {
 }
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeMobileMenu }) => {
-  const { language } = useApp();
+  const { language, logout } = useApp();
 
   return (
     <>
@@ -82,8 +82,8 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeMobileMenu }) => 
           ))}
         </nav>
         
-        {/* Bottom CTA */}
-        <div className="p-4">
+        {/* Bottom CTA & Logout */}
+        <div className="p-4 space-y-3">
            <div className="p-4 rounded-2xl bg-gradient-to-br from-indigo-500 to-purple-600 text-white shadow-lg shadow-indigo-500/25">
             <h4 className="font-bold text-sm mb-1 opacity-90">
               {language === 'bn' ? 'মতামত দিন' : 'Give Feedback'}
@@ -97,6 +97,16 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeMobileMenu }) => 
               {language === 'bn' ? 'রিপোর্ট করুন' : 'Report Now'}
             </button>
           </div>
+
+          <button 
+            onClick={logout}
+            className="w-full flex items-center gap-3 px-4 py-3 rounded-xl text-slate-500 hover:bg-slate-100 dark:hover:bg-slate-800 transition-colors"
+          >
+            <LogOut size={20} />
+            <span className="text-sm font-medium">
+              {language === 'bn' ? 'লগ আউট' : 'Logout'}
+            </span>
+          </button>
         </div>
       </aside>
     </>

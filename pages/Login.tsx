@@ -34,10 +34,12 @@ export const Login: React.FC = () => {
 
     // Mock Backend Logic
     setTimeout(() => {
+      const lowerId = identifier.toLowerCase();
+      
       // Admin/Mod Simulation
-      if (identifier.toLowerCase().includes('admin') || identifier.toLowerCase().includes('mod')) {
+      if (lowerId.includes('admin') || lowerId.includes('mod') || lowerId.includes('super')) {
         if (password.length > 3) {
-          const role = identifier.includes('super') ? 'superadmin' : identifier.includes('mod') ? 'moderator' : 'admin';
+          const role = lowerId.includes('super') ? 'superadmin' : lowerId.includes('mod') ? 'moderator' : 'admin';
           setDetectedRole(role);
           setStep(2); // Move to OTP
           setIsLoading(false);

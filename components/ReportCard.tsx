@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from './GlassCard';
+import { InfoTooltip } from './InfoTooltip';
+import { SensitiveContentWrapper } from './SensitiveContentWrapper';
 import { 
   AreaChart, Area, XAxis, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
@@ -64,7 +66,7 @@ export interface ReportData {
     mediaCheck: number;
     historyMatch: number;
   };
-  evidence: { type: 'image' | 'video' | 'doc'; url: string }[];
+  evidence: { type: 'image' | 'video' | 'doc'; url: string; isSensitive?: boolean }[];
   weightedSupport: number;
   status: 'review' | 'verified' | 'disputed';
   influenceAnalysis?: InfluenceData;
@@ -516,22 +518,28 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
       {/* Existing Evidence List */}
       <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
         {report.evidence.map((item, idx) => (
-          <div key={idx} className="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-video bg-slate-100 dark:bg-slate-800">
-             {item.type === 'image' && <img src={item.url} alt="proof" className="w-full h-full object-cover" />}
-             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
-                <button className="p-2 bg-white/20 backdrop-blur rounded-full text-white hover:bg-white/40">
-                  <MoreHorizontal size={16} />
-                </button>
-             </div>
-             <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 backdrop-blur rounded text-[9px] font-bold text-white uppercase flex items-center gap-1">
-               {item.type === 'image' ? <ImageIcon size={10} /> : <PlayCircle size={10} />}
-               {item.type}
-             </div>
-             {/* Verified Badge Placeholder */}
-             <div className="absolute bottom-2 right-2 p-1 bg-emerald-500 text-white rounded-full shadow-sm" title="Verified by AI">
-               <CheckCircle2 size={10} />
-             </div>
-          </div>
+          <SensitiveContentWrapper 
+            key={idx} 
+            isSensitive={item.isSensitive}
+            className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-video bg-slate-100 dark:bg-slate-800"
+          >
+            <div className="relative group w-full h-full">
+               {item.type === 'image' && <img src={item.url} alt="proof" className="w-full h-full object-cover" />}
+               <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                  <button className="p-2 bg-white/20 backdrop-blur rounded-full text-white hover:bg-white/40">
+                    <MoreHorizontal size={16} />
+                  </button>
+               </div>
+               <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 backdrop-blur rounded text-[9px] font-bold text-white uppercase flex items-center gap-1">
+                 {item.type === 'image' ? <ImageIcon size={10} /> : <PlayCircle size={10} />}
+                 {item.type}
+               </div>
+               {/* Verified Badge Placeholder */}
+               <div className="absolute bottom-2 right-2 p-1 bg-emerald-500 text-white rounded-full shadow-sm" title="Verified by AI">
+                 <CheckCircle2 size={10} />
+               </div>
+            </div>
+          </SensitiveContentWrapper>
         ))}
       </div>
     </div>
@@ -671,13 +679,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
         <div className="flex items-center justify-between mb-2">
           <div className="flex items-center gap-1.5">
             <span className="text-sm font-bold text-slate-700 dark:text-slate-200">{t('truthProbability')}</span>
-            <div className="group relative">
-              <Info size={14} className="text-slate-400 cursor-help" />
-              <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 w-48 p-2 bg-slate-800 text-white text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 text-center shadow-lg">
-                {t('truthTooltip')}
-                <div className="absolute top-full left-1/2 -translate-x-1/2 border-4 border-transparent border-t-slate-800"></div>
-              </div>
-            </div>
+            <InfoTooltip text="এই স্কোর তৈরি হয়েছে আপনার এলাকার তথ্য, প্রমাণের মান, ব্যবহারকারীর বিশ্বাসযোগ্যতা এবং AI বিশ্লেষণের মাধ্যমে।" />
           </div>
           <span className={`text-lg font-bold ${scoreColorClass.split(' ')[0]}`}>
             {report.truthScore}%
@@ -798,26 +800,16 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
       <div className="flex items-center justify-between py-4 border-t border-slate-100 dark:border-slate-800">
         
         {/* Support Score Metrics */}
-        <div className="flex flex-col group relative cursor-help">
-          <span className="text-[10px] text-slate-400 font-medium uppercase">{t('weightedSupport')}</span>
+        <div className="flex flex-col group relative">
+          <div className="flex items-center gap-1">
+            <span className="text-[10px] text-slate-400 font-medium uppercase">{t('weightedSupport')}</span>
+            <InfoTooltip position="top" text="ব্যবহারকারীর ট্রাস্ট স্কোর এবং ভৌগলিক অবস্থানের ভিত্তিতে এই সমর্থন গণনা করা হয়েছে।" />
+          </div>
           <div className="flex items-end gap-1.5">
              <span className={`text-xl font-bold text-slate-800 dark:text-slate-100 transition-all duration-500 ${animateScore ? 'scale-110 text-emerald-500' : ''}`}>
                {weightedScore.toLocaleString(undefined, { maximumFractionDigits: 1 })}
              </span>
              <span className="text-xs text-slate-400 mb-1">({rawSupportCount} raw)</span>
-          </div>
-
-          {/* Weight Tooltip */}
-          <div className="absolute bottom-full left-0 mb-2 w-48 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg border border-slate-700">
-            <div className="flex items-center gap-1 mb-1 text-emerald-400 font-bold border-b border-slate-700 pb-1">
-              <UserCheck size={10} /> Your Weight: {formattedWeight}
-            </div>
-            <div className="space-y-0.5 opacity-80">
-              <p>Trust Score: {USER_STATS.trustScore}%</p>
-              <p>Area Factor: {USER_STATS.areaFactor}x</p>
-              <p>Account Age: {USER_STATS.accountAgeFactor}x</p>
-            </div>
-            <div className="absolute top-full left-4 border-4 border-transparent border-t-slate-900"></div>
           </div>
         </div>
 

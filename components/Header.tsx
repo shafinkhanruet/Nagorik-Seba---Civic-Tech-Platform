@@ -1,13 +1,13 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Search, Bell, Menu, Sun, Moon, Languages, Shield, User } from 'lucide-react';
+import { Search, Bell, Menu, Sun, Moon, Languages, Shield, User, LogOut } from 'lucide-react';
 
 interface HeaderProps {
   toggleSidebar: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
-  const { theme, toggleTheme, language, toggleLanguage, t, user, role } = useApp();
+  const { theme, toggleTheme, language, toggleLanguage, t, user, role, logout } = useApp();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
 
   // Role Badge Config
@@ -92,12 +92,17 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
                <badge.icon size={8} /> {badge.label}
             </div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center border-2 border-white dark:border-slate-700 shadow-sm overflow-hidden">
+          <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center border-2 border-white dark:border-slate-700 shadow-sm overflow-hidden group relative cursor-pointer">
             {user ? (
                <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" className="w-full h-full" />
             ) : (
                <User size={20} className="text-slate-400" />
             )}
+            
+            {/* Quick Logout for Mobile/Header */}
+            <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 flex items-center justify-center transition-opacity" onClick={logout}>
+               <LogOut size={16} className="text-white" />
+            </div>
           </div>
         </div>
       </div>

@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from '../components/GlassCard';
+import { SensitiveContentWrapper } from '../components/SensitiveContentWrapper';
 import { 
   Shield, 
   Filter, 
@@ -223,7 +224,7 @@ export const EvidenceVault: React.FC = () => {
             className="group relative bg-slate-900 border border-slate-800 hover:border-emerald-500/50 rounded-xl overflow-hidden cursor-pointer transition-all duration-300 hover:shadow-lg hover:shadow-emerald-900/10 flex flex-col"
           >
             {/* Thumbnail */}
-            <div className="aspect-square bg-slate-950 relative flex items-center justify-center overflow-hidden">
+            <SensitiveContentWrapper isSensitive={item.sensitivity === 'High'} className="aspect-square bg-slate-950 relative flex items-center justify-center overflow-hidden">
               {item.type === 'image' || item.type === 'video' ? (
                 <>
                   <img src={item.thumbnailUrl} alt={item.fileName} className="w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
@@ -238,10 +239,10 @@ export const EvidenceVault: React.FC = () => {
               )}
               
               {/* Sensitivity Badge */}
-              <div className={`absolute top-2 right-2 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${getSensitivityColor(item.sensitivity)}`}>
+              <div className={`absolute top-2 right-2 px-2 py-0.5 rounded text-[9px] font-bold uppercase tracking-wider ${getSensitivityColor(item.sensitivity)} z-30`}>
                 {item.sensitivity}
               </div>
-            </div>
+            </SensitiveContentWrapper>
 
             {/* Info */}
             <div className="p-3 flex flex-col gap-1 bg-slate-900 flex-1">
@@ -287,19 +288,21 @@ export const EvidenceVault: React.FC = () => {
               
               {/* Preview */}
               <div className="bg-black rounded-lg border border-slate-800 overflow-hidden flex items-center justify-center min-h-[200px]">
-                {selectedItem.type === 'image' ? (
-                  <img src={selectedItem.thumbnailUrl} alt="Preview" className="w-full h-auto object-contain" />
-                ) : selectedItem.type === 'video' ? (
-                  <div className="text-center">
-                    <FileVideo size={48} className="mx-auto text-slate-600 mb-2" />
-                    <p className="text-xs text-slate-500">Video Preview Unavailable in Safe Mode</p>
-                  </div>
-                ) : (
-                  <div className="text-center p-8">
-                    <FileText size={48} className="mx-auto text-slate-600 mb-2" />
-                    <p className="text-xs text-slate-500">{selectedItem.fileName}</p>
-                  </div>
-                )}
+                <SensitiveContentWrapper isSensitive={selectedItem.sensitivity === 'High'} className="w-full h-full flex items-center justify-center">
+                  {selectedItem.type === 'image' ? (
+                    <img src={selectedItem.thumbnailUrl} alt="Preview" className="w-full h-auto object-contain" />
+                  ) : selectedItem.type === 'video' ? (
+                    <div className="text-center">
+                      <FileVideo size={48} className="mx-auto text-slate-600 mb-2" />
+                      <p className="text-xs text-slate-500">Video Preview Unavailable in Safe Mode</p>
+                    </div>
+                  ) : (
+                    <div className="text-center p-8">
+                      <FileText size={48} className="mx-auto text-slate-600 mb-2" />
+                      <p className="text-xs text-slate-500">{selectedItem.fileName}</p>
+                    </div>
+                  )}
+                </SensitiveContentWrapper>
               </div>
 
               {/* Metadata Table */}

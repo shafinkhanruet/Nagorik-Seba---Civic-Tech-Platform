@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from '../components/GlassCard';
+import { InfoTooltip } from '../components/InfoTooltip';
 import { 
   LineChart, 
   Line, 
@@ -114,7 +115,10 @@ export const IntegrityIndex: React.FC = () => {
             <div className="p-2 rounded-lg bg-indigo-100 dark:bg-indigo-900/30 text-indigo-600 dark:text-indigo-400">
               <Activity size={20} />
             </div>
-            <span className="text-xs font-bold text-slate-500 uppercase">{t('nationalAvg')}</span>
+            <div className="flex items-center">
+              <span className="text-xs font-bold text-slate-500 uppercase">{t('nationalAvg')}</span>
+              <InfoTooltip text="বিভিন্ন সরকারি দপ্তরের সেবার মান, অভিযোগ প্রতিকার এবং জনমতের ভিত্তিতে এই সূচক তৈরি।" />
+            </div>
           </div>
           <div>
             <span className="text-3xl font-bold text-slate-800 dark:text-slate-100">{nationalAvg}%</span>
