@@ -139,6 +139,38 @@ export const TRANSLATIONS: TranslationDictionary = {
   delayRate: { bn: 'বিলম্বের হার', en: 'Delay Rate' },
   totalProjects: { bn: 'মোট প্রকল্প', en: 'Total Projects' },
   blacklistStatus: { bn: 'কালো তালিকাভুক্ত', en: 'Blacklist Status' },
+
+  // Integrity Index
+  integrityTitle: { bn: 'জাতীয় সততা সূচক', en: 'National Integrity Index' },
+  nationalAvg: { bn: 'জাতীয় গড়', en: 'National Average' },
+  topPerforming: { bn: 'সেরা জেলা', en: 'Top Performing' },
+  criticalSector: { bn: 'ঝুঁকিপূর্ণ খাত', en: 'Critical Sector' },
+  trendAnalysis: { bn: '৫ বছরের প্রবণতা', en: '5-Year Trend' },
+  sectorBreakdown: { bn: 'খাতওয়ারী বিশ্লেষণ', en: 'Sector Breakdown' },
+  riskFactor: { bn: 'প্রধান ঝুঁকি', en: 'Top Risk Factor' },
+  solvedCases: { bn: 'মীমাংসিত কেস', en: 'Solved Cases' },
+  districtInsights: { bn: 'জেলা ভিত্তিক তথ্য', en: 'District Insights' },
+
+  // Hospital Monitor
+  hospitalTitle: { bn: 'হাসপাতাল সেবা মনিটর', en: 'Hospital Service Monitor' },
+  fairnessScore: { bn: 'সেবার মান', en: 'Fairness Score' },
+  queueTime: { bn: 'গড় অপেক্ষার সময়', en: 'Avg Queue Time' },
+  medicineStock: { bn: 'ঔষধ প্রাপ্যতা', en: 'Medicine Stock' },
+  staffPresence: { bn: 'ডাক্তার উপস্থিতি', en: 'Doctor Presence' },
+  bribeRisk: { bn: 'ঘুষের ঝুঁকি', en: 'Bribe Risk' },
+  giveFeedback: { bn: 'গোপনে মতামত দিন', en: 'Give Anonymous Feedback' },
+  minutes: { bn: 'মিনিট', en: 'min' },
+  type_govt: { bn: 'সরকারি', en: 'Government' },
+  type_private: { bn: 'বেসরকারি', en: 'Private' },
+  stock_high: { bn: 'পর্যাপ্ত', en: 'High' },
+  stock_medium: { bn: 'মাঝারি', en: 'Medium' },
+  stock_low: { bn: 'স্বল্প', en: 'Low' },
+  bribe_high: { bn: 'উচ্চ সতর্কতা', en: 'High Alert' },
+  bribe_low: { bn: 'কম', en: 'Low' },
+  bribe_medium: { bn: 'মাঝারি', en: 'Medium' },
+  sortBy: { bn: 'সাজান', en: 'Sort By' },
+  filterDistrict: { bn: 'জেলা', en: 'District' },
+  filterType: { bn: 'ধরন', en: 'Type' },
 };
 
 export const NAV_ITEMS: NavItem[] = [
