@@ -1,9 +1,10 @@
-import React from 'react';
-import { HashRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
+import React, { useState, useEffect } from 'react';
+import { HashRouter, Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
 import { CitizenLayout } from './layouts/CitizenLayout';
 import { AdminLayout } from './layouts/AdminLayout';
 import { RoleSwitcher } from './components/RoleSwitcher';
+import { Role } from './types';
 
 // Pages
 import { Dashboard } from './pages/Dashboard';
@@ -21,6 +22,12 @@ import { ModerationQueue } from './pages/ModerationQueue';
 import { AuditLogs } from './pages/AuditLogs';
 import { CourtOrders } from './pages/CourtOrders';
 import { IdentityUnlock } from './pages/IdentityUnlock';
+import { ReportReview } from './pages/ReportReview';
+import { EvidenceVault } from './pages/EvidenceVault';
+import { VoteAnomalies } from './pages/VoteAnomalies';
+import { ProjectApprovals } from './pages/ProjectApprovals';
+import { DistrictControls } from './pages/DistrictControls';
+import { CrisisControl } from './pages/CrisisControl';
 
 // Placeholder Component for Admin Pages not yet implemented
 const PlaceholderAdminPage: React.FC<{ title: string }> = ({ title }) => (
@@ -34,17 +41,43 @@ const PlaceholderAdminPage: React.FC<{ title: string }> = ({ title }) => (
 );
 
 // Protected Route Component
-const ProtectedRoute: React.FC<{ allowedRoles: string[] }> = ({ allowedRoles }) => {
-  const { role } = useApp();
+const ProtectedRoute: React.FC<{ allowedRoles: Role[] }> = ({ allowedRoles }) => {
+  const { role, user } = useApp();
+  const [showToast, setShowToast] = useState(false);
   
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+
   if (!allowedRoles.includes(role)) {
-    // If user is trying to access admin but is citizen, redirect to app dashboard
-    if (role === 'citizen') return <Navigate to="/app" replace />;
-    // If unauthorized admin level, maybe just redirect to admin dashboard
-    return <Navigate to="/admin" replace />;
+    // If logged in as citizen but trying admin route
+    if (role === 'citizen' && allowedRoles.includes('admin')) {
+      if (!showToast) {
+        setShowToast(true);
+      }
+      return <Navigate to="/app" replace />;
+    }
+    
+    // Fallback
+    return <Navigate to="/login" replace />;
   }
 
   return <Outlet />;
+};
+
+// Intelligent Root Redirector
+const RootRedirect: React.FC = () => {
+  const { user, role } = useApp();
+  
+  if (!user) {
+    return <Navigate to="/login" replace />;
+  }
+  
+  if (['admin', 'superadmin', 'moderator'].includes(role)) {
+    return <Navigate to="/admin" replace />;
+  }
+  
+  return <Navigate to="/app" replace />;
 };
 
 const AppRoutes: React.FC = () => {
@@ -53,34 +86,39 @@ const AppRoutes: React.FC = () => {
       {/* Public Routes */}
       <Route path="/login" element={<Login />} />
       <Route path="/signup" element={<Signup />} />
-      <Route path="/" element={<Navigate to="/app" replace />} />
+      
+      {/* Intelligent Root Redirect */}
+      <Route path="/" element={<RootRedirect />} />
 
-      {/* Citizen Panel Routes */}
-      <Route path="/app" element={<CitizenLayout />}>
-        <Route index element={<Dashboard />} />
-        <Route path="reports" element={<LiveReports />} />
-        <Route path="proposals" element={<ProjectProposals />} />
-        <Route path="govt-projects" element={<GovtProjects />} />
-        <Route path="tenders" element={<TenderAnalysis />} /> {/* Public View */}
-        <Route path="integrity" element={<IntegrityIndex />} />
-        <Route path="hospitals" element={<HospitalMonitor />} />
-        <Route path="repair" element={<CommunityRepair />} />
-        <Route path="digital-oath" element={<DigitalOath />} />
+      {/* Citizen Panel Routes - Accessible by ALL logged in users */}
+      <Route path="/app" element={<ProtectedRoute allowedRoles={['citizen', 'moderator', 'admin', 'superadmin']} />}>
+        <Route element={<CitizenLayout />}>
+          <Route index element={<Dashboard />} />
+          <Route path="reports" element={<LiveReports />} />
+          <Route path="proposals" element={<ProjectProposals />} />
+          <Route path="govt-projects" element={<GovtProjects />} />
+          <Route path="tenders" element={<TenderAnalysis />} /> {/* Public View */}
+          <Route path="integrity" element={<IntegrityIndex />} />
+          <Route path="hospitals" element={<HospitalMonitor />} />
+          <Route path="repair" element={<CommunityRepair />} />
+          <Route path="digital-oath" element={<DigitalOath />} />
+        </Route>
       </Route>
 
-      {/* Admin Panel Routes - Protected */}
+      {/* Admin Panel Routes - Protected for Admins/Mods */}
       <Route path="/admin" element={<ProtectedRoute allowedRoles={['moderator', 'admin', 'superadmin']} />}>
         <Route element={<AdminLayout />}>
           <Route index element={<PlaceholderAdminPage title="Admin Dashboard" />} />
           
           <Route path="moderation" element={<ModerationQueue />} />
-          <Route path="reports" element={<PlaceholderAdminPage title="Report Review" />} />
-          <Route path="evidence" element={<PlaceholderAdminPage title="Evidence Vault" />} />
-          <Route path="anomalies" element={<PlaceholderAdminPage title="Vote Anomalies" />} />
+          <Route path="reports" element={<ReportReview />} />
+          <Route path="evidence" element={<EvidenceVault />} />
+          <Route path="anomalies" element={<VoteAnomalies />} />
           <Route path="bots" element={<PlaceholderAdminPage title="Bot Activity" />} />
-          <Route path="approvals" element={<PlaceholderAdminPage title="Project Approvals" />} />
-          <Route path="tenders" element={<TenderAnalysis />} /> {/* Admin Context reuse for now, ideally separate */}
-          <Route path="districts" element={<PlaceholderAdminPage title="District Controls" />} />
+          <Route path="approvals" element={<ProjectApprovals />} />
+          <Route path="tenders" element={<TenderAnalysis />} />
+          <Route path="districts" element={<DistrictControls />} />
+          <Route path="crisis-mode" element={<CrisisControl />} />
           
           {/* High Security Areas */}
           <Route element={<ProtectedRoute allowedRoles={['admin', 'superadmin']} />}>
@@ -92,7 +130,7 @@ const AppRoutes: React.FC = () => {
       </Route>
 
       {/* Fallback */}
-      <Route path="*" element={<Navigate to="/app" replace />} />
+      <Route path="*" element={<Navigate to="/" replace />} />
     </Routes>
   );
 };

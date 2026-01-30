@@ -4,6 +4,14 @@ export type Language = 'bn' | 'en';
 export type Theme = 'light' | 'dark';
 export type Role = 'citizen' | 'moderator' | 'admin' | 'superadmin';
 
+export interface User {
+  id: string;
+  name: string;
+  role: Role;
+  token: string;
+  expiresAt: number;
+}
+
 export interface NavItem {
   id: string;
   labelBn: string;

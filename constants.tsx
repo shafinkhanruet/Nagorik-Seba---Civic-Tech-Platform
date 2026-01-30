@@ -25,7 +25,8 @@ import {
   FileCheck,
   Eye,
   Map,
-  Lock
+  Lock,
+  Siren
 } from 'lucide-react';
 import { NavItem, TranslationDictionary } from './types';
 
@@ -90,6 +91,7 @@ export const TRANSLATIONS: TranslationDictionary = {
   admin_audit: { bn: 'অডিট লগ', en: 'Audit Logs' },
   admin_court: { bn: 'আদালতের আদেশ', en: 'Court Orders' },
   admin_identity: { bn: 'পরিচয় অনুরোধ', en: 'Identity Requests' },
+  admin_crisis: { bn: 'জরুরি নিয়ন্ত্রণ', en: 'Crisis Control' },
   restricted_area: { bn: 'সংরক্ষিত এলাকা - শুধুমাত্র অনুমোদিত কর্মীদের জন্য', en: 'Restricted Area – Authorized Personnel Only' },
   role_switch: { bn: 'রোল পরিবর্তন (DEV)', en: 'Switch Role (DEV)' },
 
@@ -329,6 +331,7 @@ export const CITIZEN_NAV_ITEMS: NavItem[] = [
 
 export const ADMIN_NAV_ITEMS: NavItem[] = [
   { id: 'admin_dashboard', labelBn: 'ড্যাশবোর্ড', labelEn: 'Dashboard', path: '/admin', icon: LayoutDashboard },
+  { id: 'admin_crisis', labelBn: 'জরুরি নিয়ন্ত্রণ', labelEn: 'Crisis Control', path: '/admin/crisis-mode', icon: Siren },
   { id: 'admin_moderation', labelBn: 'মডারেশন কিউ', labelEn: 'Moderation Queue', path: '/admin/moderation', icon: ShieldAlert },
   { id: 'admin_reports', labelBn: 'রিপোর্ট পর্যালোচনা', labelEn: 'Report Review', path: '/admin/reports', icon: FileCheck },
   { id: 'admin_evidence', labelBn: 'প্রমাণ ভল্ট', labelEn: 'Evidence Vault', path: '/admin/evidence', icon: Archive },

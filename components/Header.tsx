@@ -1,14 +1,29 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
-import { Search, Bell, Menu, Sun, Moon, Languages } from 'lucide-react';
+import { Search, Bell, Menu, Sun, Moon, Languages, Shield, User } from 'lucide-react';
 
 interface HeaderProps {
   toggleSidebar: () => void;
 }
 
 export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
-  const { theme, toggleTheme, language, toggleLanguage, t } = useApp();
+  const { theme, toggleTheme, language, toggleLanguage, t, user, role } = useApp();
   const [isSearchFocused, setIsSearchFocused] = useState(false);
+
+  // Role Badge Config
+  const getRoleBadge = () => {
+    switch (role) {
+      case 'admin':
+      case 'superadmin':
+        return { color: 'bg-red-100 text-red-700 dark:bg-red-900/30 dark:text-red-400', icon: Shield, label: 'Admin' };
+      case 'moderator':
+        return { color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/30 dark:text-indigo-400', icon: Shield, label: 'Mod' };
+      default:
+        return { color: 'bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-400', icon: User, label: 'Citizen' };
+    }
+  };
+
+  const badge = getRoleBadge();
 
   return (
     <header className="sticky top-0 z-30 h-20 px-6 flex items-center justify-between
@@ -69,18 +84,20 @@ export const Header: React.FC<HeaderProps> = ({ toggleSidebar }) => {
           <span className="absolute top-2 right-2.5 w-2 h-2 rounded-full bg-red-500 border-2 border-white dark:border-slate-900"></span>
         </button>
 
-        {/* Profile */}
+        {/* Profile & Role Badge */}
         <div className="flex items-center gap-3 pl-2 ml-2 border-l border-slate-200 dark:border-slate-700">
           <div className="text-right hidden sm:block">
-            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">আব্দুর রহিম</p>
-            <p className="text-xs text-slate-500 dark:text-slate-400">নাগরিক</p>
+            <p className="text-sm font-semibold text-slate-700 dark:text-slate-200">{user?.name || 'Guest'}</p>
+            <div className={`inline-flex items-center gap-1 px-1.5 py-0.5 rounded text-[10px] font-bold uppercase ${badge.color}`}>
+               <badge.icon size={8} /> {badge.label}
+            </div>
           </div>
-          <div className="w-10 h-10 rounded-full bg-emerald-100 dark:bg-emerald-900/30 flex items-center justify-center border-2 border-white dark:border-slate-800 shadow-sm">
-            <img 
-              src="https://picsum.photos/40/40" 
-              alt="Profile" 
-              className="w-full h-full rounded-full object-cover"
-            />
+          <div className="w-10 h-10 rounded-full bg-slate-200 dark:bg-slate-800 flex items-center justify-center border-2 border-white dark:border-slate-700 shadow-sm overflow-hidden">
+            {user ? (
+               <img src="https://api.dicebear.com/7.x/avataaars/svg?seed=Felix" alt="User" className="w-full h-full" />
+            ) : (
+               <User size={20} className="text-slate-400" />
+            )}
           </div>
         </div>
       </div>
