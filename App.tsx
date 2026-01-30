@@ -13,6 +13,7 @@ import { TenderAnalysis } from './pages/TenderAnalysis';
 import { IntegrityIndex } from './pages/IntegrityIndex';
 import { HospitalMonitor } from './pages/HospitalMonitor';
 import { CommunityRepair } from './pages/CommunityRepair';
+import { DigitalOath } from './pages/DigitalOath';
 
 // Placeholder components for other routes
 const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
@@ -52,6 +53,7 @@ const AppLayout: React.FC = () => {
               <Route path="/integrity" element={<IntegrityIndex />} />
               <Route path="/hospitals" element={<HospitalMonitor />} />
               <Route path="/repair" element={<CommunityRepair />} />
+              <Route path="/digital-oath" element={<DigitalOath />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>

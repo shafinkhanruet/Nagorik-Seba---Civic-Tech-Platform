@@ -13,7 +13,8 @@ import {
   User,
   LogIn,
   UserPlus,
-  Briefcase
+  Briefcase,
+  ScrollText
 } from 'lucide-react';
 import { NavItem, TranslationDictionary } from './types';
 
@@ -191,6 +192,29 @@ export const TRANSLATIONS: TranslationDictionary = {
   describeFix: { bn: 'কাজের বিবরণ দিন', en: 'Describe the fix' },
   submitFix: { bn: 'জমা দিন', en: 'Submit Fix' },
   rewardClaim: { bn: 'রিওয়ার্ড', en: 'Reward' },
+
+  // Ethics & Oath
+  ethicsReminder: { bn: 'নৈতিক স্মরণ', en: 'Ethics Reminder' },
+  ethicsQuote: { bn: 'আল্লাহ তাআলা আমানত ঠিকভাবে আদায় করার নির্দেশ দিয়েছেন। (ভাবার্থ)', en: 'Indeed, Allah commands you to render trusts to whom they are due. (Quran 4:58)' },
+  digitalOath: { bn: 'ডিজিটাল শপথ', en: 'Digital Oath' },
+  oathPageTitle: { bn: 'নৈতিক ও নাগরিক শপথ', en: 'Ethical & Civic Oath' },
+  rel_islam: { bn: 'ইসলাম', en: 'Islam' },
+  rel_hindu: { bn: 'হিন্দু', en: 'Hindu' },
+  rel_christian: { bn: 'খ্রিস্টান', en: 'Christian' },
+  rel_buddhist: { bn: 'বৌদ্ধ', en: 'Buddhist' },
+  rel_secular: { bn: 'সাধারণ', en: 'Secular' },
+  
+  text_islam: { bn: 'আমি আল্লাহ্‌র নামে শপথ করছি যে, আমি সর্বদা সত্য বলব, কারও হক নষ্ট করব না এবং এই প্ল্যাটফর্মটি শুধুমাত্র ন্যায় ও কল্যাণের জন্য ব্যবহার করব।', en: 'I swear by Allah that I will speak the truth, fulfill the rights of others, and use this platform only for justice and welfare.' },
+  text_hindu: { bn: 'আমি ঈশ্বরের নামে শপথ করছি যে, আমি ধর্ম ও সত্যের পথে থাকব, মিথ্যা পরিহার করব এবং সমাজের মঙ্গলে কাজ করব।', en: 'I swear by God to follow the path of Dharma and Truth, avoid falsehood, and work for the welfare of society.' },
+  text_christian: { bn: 'আমি ঈশ্বরের নামে প্রতিজ্ঞা করছি যে, আমি সততার সাথে আমার নাগরিক দায়িত্ব পালন করব এবং প্রতিবেশী ও সমাজের প্রতি বিশ্বস্ত থাকব।', en: 'I pledge before God to fulfill my civic duties with honesty and remain faithful to my neighbors and society.' },
+  text_buddhist: { bn: 'আমি বুদ্ধের শিক্ষা স্মরণ করে প্রতিজ্ঞা করছি যে, আমি মিথ্যা ভাষণ থেকে বিরত থাকব এবং সকল প্রাণীর মঙ্গলে কাজ করব।', en: 'Remembering the teachings of Buddha, I pledge to refrain from false speech and work for the welfare of all beings.' },
+  text_secular: { bn: 'আমি দেশের একজন দায়িত্বশীল নাগরিক হিসেবে শপথ করছি যে, আমি সংবিধানের প্রতি শ্রদ্ধাশীল থাকব এবং সততা ও নিষ্ঠার সাথে আমার নাগরিক দায়িত্ব পালন করব।', en: 'As a responsible citizen, I pledge to uphold the constitution and perform my civic duties with honesty and integrity.' },
+  
+  acceptOath: { bn: 'আমি এই শপথ গ্রহণ করছি', en: 'I accept this oath' },
+  confirmOath: { bn: 'শপথ নিশ্চিত করুন', en: 'Confirm Oath' },
+  oathAccepted: { bn: 'শপথ গ্রহণ সম্পন্ন হয়েছে', en: 'Oath Accepted' },
+  acceptedOn: { bn: 'আপনি এই শপথ গ্রহণ করেছেন:', en: 'You accepted this oath on:' },
+  backToHome: { bn: 'হোম এ ফিরে যান', en: 'Back to Home' },
 };
 
 export const NAV_ITEMS: NavItem[] = [
@@ -202,6 +226,7 @@ export const NAV_ITEMS: NavItem[] = [
   { id: 'integrity', labelBn: 'সততা সূচক', labelEn: 'Integrity Index', path: '/integrity', icon: Scale },
   { id: 'hospitals', labelBn: 'হাসপাতাল', labelEn: 'Hospitals', path: '/hospitals', icon: Stethoscope },
   { id: 'repair', labelBn: 'কমিউনিটি মেরামত', labelEn: 'Repair', path: '/repair', icon: Wrench },
+  { id: 'oath', labelBn: 'ডিজিটাল শপথ', labelEn: 'Digital Oath', path: '/digital-oath', icon: ScrollText },
   { id: 'login', labelBn: 'প্রবেশ করুন', labelEn: 'Login', path: '/login', icon: LogIn },
   { id: 'signup', labelBn: 'নিবন্ধন', labelEn: 'Sign Up', path: '/signup', icon: UserPlus },
 ];

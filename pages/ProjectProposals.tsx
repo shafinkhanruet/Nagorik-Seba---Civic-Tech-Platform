@@ -1,6 +1,7 @@
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { ProposalCard, ProjectProposalData } from '../components/ProposalCard';
+import { EthicsBanner } from '../components/EthicsBanner';
 import { Filter, SlidersHorizontal } from 'lucide-react';
 
 const MOCK_PROPOSALS: ProjectProposalData[] = [
@@ -71,6 +72,12 @@ export const ProjectProposals: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-10">
+      
+      {/* Ethics Banner */}
+      <div className="-mx-4 md:-mx-8 -mt-4 md:-mt-8 mb-6">
+        <EthicsBanner />
+      </div>
+
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-end justify-between gap-4 mb-2">
         <div>

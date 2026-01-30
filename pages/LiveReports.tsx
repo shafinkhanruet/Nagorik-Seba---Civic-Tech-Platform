@@ -2,6 +2,7 @@ import React from 'react';
 import { useApp } from '../context/AppContext';
 import { ReportCard, ReportData } from '../components/ReportCard';
 import { GlassCard } from '../components/GlassCard';
+import { EthicsBanner } from '../components/EthicsBanner';
 import { Filter, Map, Plus } from 'lucide-react';
 import { 
   AlertTriangle, 
@@ -143,6 +144,12 @@ export const LiveReports: React.FC = () => {
 
   return (
     <div className="space-y-6 animate-fade-in pb-10">
+      
+      {/* Ethics Banner */}
+      <div className="-mx-4 md:-mx-8 -mt-4 md:-mt-8 mb-6">
+        <EthicsBanner />
+      </div>
+
       {/* Page Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
         <div>
