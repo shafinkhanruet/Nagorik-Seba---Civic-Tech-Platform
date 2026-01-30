@@ -2,6 +2,8 @@ import React, { useState, useMemo } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from './GlassCard';
 import { InfoTooltip } from './InfoTooltip';
+import { BudgetExecutionTracker, BudgetExecutionData } from './BudgetExecutionTracker';
+import { FollowButton } from './FollowButton';
 import { 
   Building2, 
   MapPin, 
@@ -12,7 +14,9 @@ import {
   BrainCircuit,
   Settings,
   ShieldCheck,
-  Zap
+  Zap,
+  ChevronDown,
+  ChevronUp
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -40,6 +44,7 @@ export interface GovtProjectData {
   baseDuration: number; // in Months
   materials: MaterialData[];
   aiExplanation: string;
+  budgetData?: BudgetExecutionData;
 }
 
 interface GovtProjectCardProps {
@@ -50,6 +55,7 @@ export const GovtProjectCard: React.FC<GovtProjectCardProps> = ({ project }) => 
   const { t } = useApp();
   const [qualityLevel, setQualityLevel] = useState<'low' | 'standard' | 'high'>('standard');
   const [duration, setDuration] = useState(project.baseDuration);
+  const [showTracker, setShowTracker] = useState(false);
 
   // Simulation Logic
   const simulation = useMemo(() => {
@@ -127,12 +133,15 @@ export const GovtProjectCard: React.FC<GovtProjectCardProps> = ({ project }) => 
             {project.location}
           </div>
         </div>
-        <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${statusColors[project.status]}`}>
-          {project.status.toUpperCase()}
+        <div className="flex flex-col items-end gap-2">
+          <div className={`px-3 py-1 rounded-full text-xs font-bold uppercase tracking-wide ${statusColors[project.status]}`}>
+            {project.status.toUpperCase()}
+          </div>
+          <FollowButton id={project.id} type="project" name={project.name} />
         </div>
       </div>
 
-      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+      <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-6">
         
         {/* Left Column: Stats & Charts */}
         <div className="space-y-6">
@@ -270,6 +279,28 @@ export const GovtProjectCard: React.FC<GovtProjectCardProps> = ({ project }) => 
 
         </div>
       </div>
+
+      {/* NEW: Expandable Budget Tracker */}
+      {project.budgetData && (
+        <div className="border-t border-slate-100 dark:border-slate-800 pt-2">
+          <button 
+            onClick={() => setShowTracker(!showTracker)}
+            className="w-full flex items-center justify-center gap-2 py-3 text-xs font-bold text-slate-500 hover:text-indigo-600 dark:text-slate-400 dark:hover:text-indigo-400 transition-colors"
+          >
+            {showTracker ? (
+              <><ChevronUp size={14} /> Hide Budget Details</>
+            ) : (
+              <><ChevronDown size={14} /> View Detailed Budget Execution Tracker</>
+            )}
+          </button>
+          
+          {showTracker && (
+            <div className="mt-4 animate-fade-in-down">
+              <BudgetExecutionTracker data={project.budgetData} />
+            </div>
+          )}
+        </div>
+      )}
     </GlassCard>
   );
 };

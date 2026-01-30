@@ -20,7 +20,25 @@ const MOCK_GOVT_PROJECTS: GovtProjectData[] = [
       { name: 'Land', value: 1100 },
       { name: 'Other', value: 200 },
     ],
-    aiExplanation: 'মাটির ধরন ও আন্তর্জাতিক বাজারে স্টিলের দাম কমায় এই বাজেটে প্রায় ৩০০ কোটি টাকা সাশ্রয় করা সম্ভব। তবে জমির অধিগ্রহণ খরচ বাড়তে পারে।'
+    aiExplanation: 'মাটির ধরন ও আন্তর্জাতিক বাজারে স্টিলের দাম কমায় এই বাজেটে প্রায় ৩০০ কোটি টাকা সাশ্রয় করা সম্ভব। তবে জমির অধিগ্রহণ খরচ বাড়তে পারে।',
+    budgetData: {
+      approvedBudget: 4500,
+      aiEstimatedBudget: 4200,
+      spentSoFar: 2100,
+      delayRisk: 'Medium',
+      monthlySpending: [
+        { month: 'Jan', planned: 200, actual: 210 },
+        { month: 'Feb', planned: 220, actual: 230 },
+        { month: 'Mar', planned: 250, actual: 300 }, // Overrun
+        { month: 'Apr', planned: 240, actual: 245 },
+        { month: 'May', planned: 260, actual: 250 },
+      ],
+      milestones: [
+        { phase: 'Land Acquisition', plannedCost: 1000, actualCost: 1100, status: 'completed' },
+        { phase: 'Piling Works', plannedCost: 1500, actualCost: 1450, status: 'ongoing' },
+        { phase: 'Superstructure', plannedCost: 2000, actualCost: 0, status: 'pending' },
+      ]
+    }
   },
   {
     id: '102',
@@ -37,7 +55,22 @@ const MOCK_GOVT_PROJECTS: GovtProjectData[] = [
       { name: 'Labor', value: 250 },
       { name: 'Finishing', value: 170 },
     ],
-    aiExplanation: 'বর্তমান বাজারদরে রড ও সিমেন্টের দাম বৃদ্ধির কারণে সরকারি বাজেট অপ্রতুল হতে পারে। গুণমান বজায় রাখতে বাজেট বাড়ানো প্রয়োজন।'
+    aiExplanation: 'বর্তমান বাজারদরে রড ও সিমেন্টের দাম বৃদ্ধির কারণে সরকারি বাজেট অপ্রতুল হতে পারে। গুণমান বজায় রাখতে বাজেট বাড়ানো প্রয়োজন।',
+    budgetData: {
+      approvedBudget: 850,
+      aiEstimatedBudget: 920,
+      spentSoFar: 120,
+      delayRisk: 'High',
+      monthlySpending: [
+        { month: 'Jan', planned: 50, actual: 20 }, // Delay
+        { month: 'Feb', planned: 60, actual: 30 },
+        { month: 'Mar', planned: 70, actual: 70 },
+      ],
+      milestones: [
+        { phase: 'Foundation', plannedCost: 200, actualCost: 120, status: 'delayed' },
+        { phase: 'Structural', plannedCost: 400, actualCost: 0, status: 'pending' },
+      ]
+    }
   },
   {
     id: '103',
@@ -54,7 +87,23 @@ const MOCK_GOVT_PROJECTS: GovtProjectData[] = [
       { name: 'Network', value: 10 },
       { name: 'Training', value: 5 },
     ],
-    aiExplanation: 'হার্ডওয়্যার আমদানিতে শুল্ক হ্রাসের কারণে খরচ কমার সম্ভাবনা রয়েছে। তবে রক্ষণাবেক্ষণ খাতের জন্য অতিরিক্ত বরাদ্দ রাখা উচিত।'
+    aiExplanation: 'হার্ডওয়্যার আমদানিতে শুল্ক হ্রাসের কারণে খরচ কমার সম্ভাবনা রয়েছে। তবে রক্ষণাবেক্ষণ খাতের জন্য অতিরিক্ত বরাদ্দ রাখা উচিত।',
+    budgetData: {
+      approvedBudget: 120,
+      aiEstimatedBudget: 95,
+      spentSoFar: 40,
+      delayRisk: 'Low',
+      monthlySpending: [
+        { month: 'Jan', planned: 10, actual: 8 },
+        { month: 'Feb', planned: 15, actual: 12 },
+        { month: 'Mar', planned: 20, actual: 20 },
+      ],
+      milestones: [
+        { phase: 'Procurement', plannedCost: 60, actualCost: 40, status: 'ongoing' },
+        { phase: 'Installation', plannedCost: 40, actualCost: 0, status: 'pending' },
+        { phase: 'Training', plannedCost: 20, actualCost: 0, status: 'pending' },
+      ]
+    }
   }
 ];
 

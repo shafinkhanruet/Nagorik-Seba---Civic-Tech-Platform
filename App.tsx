@@ -1,13 +1,18 @@
+
 import React, { useState, useEffect } from 'react';
 import { HashRouter, Routes, Route, Navigate, Outlet, useNavigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
+import { ToastProvider } from './context/ToastContext';
+import { NotificationProvider } from './context/NotificationContext';
 import { CitizenLayout } from './layouts/CitizenLayout';
 import { AdminLayout } from './layouts/AdminLayout';
 import { RoleSwitcher } from './components/RoleSwitcher';
 import { SessionWarning } from './components/SessionWarning';
-import { Role } from './types';
+import { DemoModeIndicator } from './components/DemoModeIndicator';
+import { checkPermission, Permission } from './config/permissions';
 
 // Pages
+import { CitizenFeed } from './pages/CitizenFeed';
 import { Dashboard } from './pages/Dashboard';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
@@ -29,6 +34,12 @@ import { VoteAnomalies } from './pages/VoteAnomalies';
 import { ProjectApprovals } from './pages/ProjectApprovals';
 import { DistrictControls } from './pages/DistrictControls';
 import { CrisisControl } from './pages/CrisisControl';
+import { NotificationCenter } from './pages/NotificationCenter';
+import { Settings } from './pages/Settings';
+import { MinistryTransparency } from './pages/MinistryTransparency';
+import { RTIRequestPage } from './pages/RTIRequest';
+import { AdminRTI } from './pages/AdminRTI';
+import { Profile } from './pages/Profile';
 
 // Placeholder Component for Admin Pages not yet implemented
 const PlaceholderAdminPage: React.FC<{ title: string }> = ({ title }) => (
@@ -42,25 +53,25 @@ const PlaceholderAdminPage: React.FC<{ title: string }> = ({ title }) => (
 );
 
 // Protected Route Component
-const ProtectedRoute: React.FC<{ allowedRoles: Role[] }> = ({ allowedRoles }) => {
+interface ProtectedRouteProps {
+  requiredPermission?: Permission;
+}
+
+const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ requiredPermission }) => {
   const { role, user } = useApp();
-  const [showToast, setShowToast] = useState(false);
   
   if (!user) {
     return <Navigate to="/login" replace />;
   }
 
-  if (!allowedRoles.includes(role)) {
-    // If logged in as citizen but trying admin route
-    if (role === 'citizen' && allowedRoles.includes('admin')) {
-      if (!showToast) {
-        setShowToast(true);
-      }
+  // Check centralized permissions
+  if (requiredPermission && !checkPermission(role, requiredPermission)) {
+    if (role === 'citizen') {
+      // Redirect citizen trying to access admin to app
       return <Navigate to="/app" replace />;
     }
-    
-    // Fallback
-    return <Navigate to="/login" replace />;
+    // Stay on current page or go to root if nowhere else
+    return <Navigate to="/" replace />;
   }
 
   return <Outlet />;
@@ -74,7 +85,7 @@ const RootRedirect: React.FC = () => {
     return <Navigate to="/login" replace />;
   }
   
-  if (['admin', 'superadmin', 'moderator'].includes(role)) {
+  if (checkPermission(role, 'view:admin_panel')) {
     return <Navigate to="/admin" replace />;
   }
   
@@ -91,10 +102,16 @@ const AppRoutes: React.FC = () => {
       {/* Intelligent Root Redirect */}
       <Route path="/" element={<RootRedirect />} />
 
-      {/* Citizen Panel Routes - Accessible by ALL logged in users */}
-      <Route path="/app" element={<ProtectedRoute allowedRoles={['citizen', 'moderator', 'admin', 'superadmin']} />}>
+      {/* Citizen Panel Routes - Accessible by users with basic access (all logged in) */}
+      <Route path="/app" element={<ProtectedRoute />}>
         <Route element={<CitizenLayout />}>
-          <Route index element={<Dashboard />} />
+          <Route index element={<CitizenFeed />} />
+          <Route path="analytics" element={<Dashboard />} />
+          <Route path="notifications" element={<NotificationCenter />} />
+          <Route path="profile" element={<Profile />} />
+          <Route path="settings" element={<Settings />} />
+          <Route path="ministries" element={<MinistryTransparency />} />
+          <Route path="rti" element={<RTIRequestPage />} />
           <Route path="reports" element={<LiveReports />} />
           <Route path="proposals" element={<ProjectProposals />} />
           <Route path="govt-projects" element={<GovtProjects />} />
@@ -106,8 +123,8 @@ const AppRoutes: React.FC = () => {
         </Route>
       </Route>
 
-      {/* Admin Panel Routes - Protected for Admins/Mods */}
-      <Route path="/admin" element={<ProtectedRoute allowedRoles={['moderator', 'admin', 'superadmin']} />}>
+      {/* Admin Panel Routes - Protected via 'view:admin_panel' permission */}
+      <Route path="/admin" element={<ProtectedRoute requiredPermission="view:admin_panel" />}>
         <Route element={<AdminLayout />}>
           <Route index element={<PlaceholderAdminPage title="Admin Dashboard" />} />
           
@@ -120,13 +137,12 @@ const AppRoutes: React.FC = () => {
           <Route path="tenders" element={<TenderAnalysis />} />
           <Route path="districts" element={<DistrictControls />} />
           <Route path="crisis-mode" element={<CrisisControl />} />
+          <Route path="rti" element={<AdminRTI />} />
           
           {/* High Security Areas */}
-          <Route element={<ProtectedRoute allowedRoles={['admin', 'superadmin']} />}>
-             <Route path="audit-logs" element={<AuditLogs />} />
-             <Route path="court-orders" element={<CourtOrders />} />
-             <Route path="identity-unlock" element={<IdentityUnlock />} />
-          </Route>
+          <Route path="audit-logs" element={<AuditLogs />} />
+          <Route path="court-orders" element={<CourtOrders />} />
+          <Route path="identity-unlock" element={<IdentityUnlock />} />
         </Route>
       </Route>
 
@@ -139,11 +155,16 @@ const AppRoutes: React.FC = () => {
 const App: React.FC = () => {
   return (
     <AppProvider>
-      <HashRouter>
-        <AppRoutes />
-        <SessionWarning />
-        <RoleSwitcher />
-      </HashRouter>
+      <ToastProvider>
+        <NotificationProvider>
+          <HashRouter>
+            <AppRoutes />
+            <SessionWarning />
+            <DemoModeIndicator />
+            <RoleSwitcher />
+          </HashRouter>
+        </NotificationProvider>
+      </ToastProvider>
     </AppProvider>
   );
 };

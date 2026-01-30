@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from '../components/GlassCard';
+import { ProcurementViewer, ProcurementDoc, TimelineEvent } from '../components/ProcurementViewer';
 import { 
   Filter, 
   AlertTriangle, 
@@ -15,7 +16,9 @@ import {
   Repeat,
   DollarSign,
   TrendingUp,
-  X
+  X,
+  Network,
+  FileCheck
 } from 'lucide-react';
 import { 
   BarChart, 
@@ -107,10 +110,76 @@ const CONTRACTOR_DETAILS = {
   ]
 };
 
+// Mock Docs for Procurement Viewer
+const MOCK_DOCS: ProcurementDoc[] = [
+  {
+    id: 'DOC-101',
+    type: 'notice',
+    title: 'Tender Notice: Bridge Construction',
+    date: '2023-10-01',
+    version: '1.0',
+    status: 'active',
+    access: 'public',
+    hash: '0x7f8...9a2',
+    uploadedBy: 'LGRD Admin',
+    url: 'https://images.unsplash.com/photo-1586281380349-632531db7ed4?auto=format&fit=crop&q=80&w=300',
+    fileType: 'image'
+  },
+  {
+    id: 'DOC-102',
+    type: 'bid',
+    title: 'Bid: Alpha Builders Financial',
+    date: '2023-10-15',
+    version: '1.2',
+    status: 'active',
+    access: 'restricted',
+    hash: '0xe1d...4f5',
+    uploadedBy: 'Alpha Rep',
+    url: '',
+    fileType: 'pdf'
+  },
+  {
+    id: 'DOC-103',
+    type: 'evaluation',
+    title: 'Technical Evaluation Report',
+    date: '2023-10-25',
+    version: '1.0',
+    status: 'active',
+    access: 'restricted',
+    hash: '0x3c4...1a9',
+    uploadedBy: 'Eval Committee',
+    url: '',
+    fileType: 'pdf'
+  },
+  {
+    id: 'DOC-104',
+    type: 'award',
+    title: 'Notification of Award',
+    date: '2023-11-01',
+    version: '1.0',
+    status: 'active',
+    access: 'public',
+    hash: '0x9a8...7c6',
+    uploadedBy: 'LGRD Admin',
+    url: 'https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?auto=format&fit=crop&q=80&w=300',
+    fileType: 'image'
+  }
+];
+
+const MOCK_TIMELINE: TimelineEvent[] = [
+  { stage: 'notice', date: 'Oct 01, 2023', completed: true, active: false },
+  { stage: 'bidding', date: 'Oct 15, 2023', completed: true, active: false },
+  { stage: 'evaluation', date: 'Oct 25, 2023', completed: true, active: false },
+  { stage: 'award', date: 'Nov 01, 2023', completed: false, active: true },
+];
+
 export const TenderAnalysis: React.FC = () => {
-  const { t, language } = useApp();
+  const { t, language, role } = useApp();
   const [selectedNode, setSelectedNode] = useState<string | null>(null);
   const [hoveredNode, setHoveredNode] = useState<string | null>(null);
+  const [activeTab, setActiveTab] = useState<'network' | 'docs'>('network');
+
+  const isAdmin = ['admin', 'superadmin', 'moderator'].includes(role);
 
   // Helper to get node colors
   const getNodeColor = (type: string, risk: string) => {
@@ -191,132 +260,166 @@ export const TenderAnalysis: React.FC = () => {
 
       <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 relative">
         
-        {/* 2) Network Graph Area */}
+        {/* 2) Main Content Area (Tabs) */}
         <div className="lg:col-span-2 space-y-6">
-          <GlassCard className="bg-slate-900 dark:bg-slate-950 min-h-[500px] flex flex-col relative overflow-hidden border-slate-800" noPadding>
-            <div className="absolute top-4 left-4 z-10">
-              <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
-                <BrainCircuit size={14} /> {t('networkGraph')}
-              </h3>
-            </div>
+          
+          {/* Tabs */}
+          <div className="flex border-b border-slate-200 dark:border-slate-800">
+            <button
+              onClick={() => setActiveTab('network')}
+              className={`flex items-center gap-2 px-6 py-3 text-sm font-bold transition-all ${
+                activeTab === 'network'
+                  ? 'border-b-2 border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              <Network size={16} /> Network Analysis
+            </button>
+            <button
+              onClick={() => setActiveTab('docs')}
+              className={`flex items-center gap-2 px-6 py-3 text-sm font-bold transition-all ${
+                activeTab === 'docs'
+                  ? 'border-b-2 border-indigo-500 text-indigo-600 dark:text-indigo-400'
+                  : 'text-slate-500 hover:text-slate-800 dark:hover:text-slate-200'
+              }`}
+            >
+              <FileCheck size={16} /> Procurement Documents
+            </button>
+          </div>
 
-            {/* SVG Graph Visualization */}
-            <div className="w-full h-[500px] cursor-move">
-              <svg viewBox="0 0 800 600" className="w-full h-full">
-                <defs>
-                   {/* Glow Filter */}
-                   <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
-                     <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
-                     <feMerge>
-                       <feMergeNode in="coloredBlur"/>
-                       <feMergeNode in="SourceGraphic"/>
-                     </feMerge>
-                   </filter>
-                </defs>
+          <GlassCard className="bg-slate-900 dark:bg-slate-950 min-h-[550px] flex flex-col relative overflow-hidden border-slate-800" noPadding>
+            
+            {activeTab === 'network' ? (
+              <>
+                <div className="absolute top-4 left-4 z-10">
+                  <h3 className="text-slate-400 text-xs font-bold uppercase tracking-widest flex items-center gap-2">
+                    <BrainCircuit size={14} /> {t('networkGraph')}
+                  </h3>
+                </div>
 
-                {/* Edges */}
-                {EDGES.map((edge, idx) => {
-                  const s = NODES.find(n => n.id === edge.source)!;
-                  const t = NODES.find(n => n.id === edge.target)!;
-                  const isHighRisk = edge.risk === 'high';
-                  
-                  return (
-                    <g key={idx}>
-                      <line 
-                        x1={s.x} y1={s.y} x2={t.x} y2={t.y} 
-                        stroke={isHighRisk ? '#ef4444' : '#64748b'} 
-                        strokeWidth={edge.value} 
-                        strokeOpacity={0.6}
-                        className={isHighRisk ? 'animate-pulse' : ''}
-                      />
-                      {/* Animated Particle for flow */}
-                      {isHighRisk && (
-                        <circle r="3" fill="#ef4444">
-                          <animateMotion 
-                            dur="2s" 
-                            repeatCount="indefinite"
-                            path={`M${s.x},${s.y} L${t.x},${t.y}`}
+                {/* SVG Graph Visualization */}
+                <div className="w-full h-[550px] cursor-move">
+                  <svg viewBox="0 0 800 600" className="w-full h-full">
+                    <defs>
+                       {/* Glow Filter */}
+                       <filter id="glow" x="-50%" y="-50%" width="200%" height="200%">
+                         <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+                         <feMerge>
+                           <feMergeNode in="coloredBlur"/>
+                           <feMergeNode in="SourceGraphic"/>
+                         </feMerge>
+                       </filter>
+                    </defs>
+
+                    {/* Edges */}
+                    {EDGES.map((edge, idx) => {
+                      const s = NODES.find(n => n.id === edge.source)!;
+                      const t = NODES.find(n => n.id === edge.target)!;
+                      const isHighRisk = edge.risk === 'high';
+                      
+                      return (
+                        <g key={idx}>
+                          <line 
+                            x1={s.x} y1={s.y} x2={t.x} y2={t.y} 
+                            stroke={isHighRisk ? '#ef4444' : '#64748b'} 
+                            strokeWidth={edge.value} 
+                            strokeOpacity={0.6}
+                            className={isHighRisk ? 'animate-pulse' : ''}
                           />
-                        </circle>
-                      )}
-                    </g>
-                  );
-                })}
+                          {/* Animated Particle for flow */}
+                          {isHighRisk && (
+                            <circle r="3" fill="#ef4444">
+                              <animateMotion 
+                                dur="2s" 
+                                repeatCount="indefinite"
+                                path={`M${s.x},${s.y} L${t.x},${t.y}`}
+                              />
+                            </circle>
+                          )}
+                        </g>
+                      );
+                    })}
 
-                {/* Nodes */}
-                {NODES.map((node) => (
-                  <g 
-                    key={node.id} 
-                    onClick={() => setSelectedNode(node.id)}
-                    onMouseEnter={() => setHoveredNode(node.id)}
-                    onMouseLeave={() => setHoveredNode(null)}
-                    className="cursor-pointer transition-all duration-300"
-                    style={{ transformOrigin: `${node.x}px ${node.y}px` }}
-                  >
-                    {/* Ripple for High Risk */}
-                    {node.risk === 'high' && (
-                      <circle cx={node.x} cy={node.y} r={node.r + 10} className="fill-red-500/20 animate-ping" />
-                    )}
-                    
-                    {/* Main Circle */}
-                    <circle 
-                      cx={node.x} 
-                      cy={node.y} 
-                      r={node.r} 
-                      className={`${getNodeColor(node.type, node.risk)} hover:stroke-white transition-colors duration-200 stroke-2`}
-                      filter={node.risk === 'high' ? 'url(#glow)' : ''}
-                    />
+                    {/* Nodes */}
+                    {NODES.map((node) => (
+                      <g 
+                        key={node.id} 
+                        onClick={() => setSelectedNode(node.id)}
+                        onMouseEnter={() => setHoveredNode(node.id)}
+                        onMouseLeave={() => setHoveredNode(null)}
+                        className="cursor-pointer transition-all duration-300"
+                        style={{ transformOrigin: `${node.x}px ${node.y}px` }}
+                      >
+                        {/* Ripple for High Risk */}
+                        {node.risk === 'high' && (
+                          <circle cx={node.x} cy={node.y} r={node.r + 10} className="fill-red-500/20 animate-ping" />
+                        )}
+                        
+                        {/* Main Circle */}
+                        <circle 
+                          cx={node.x} 
+                          cy={node.y} 
+                          r={node.r} 
+                          className={`${getNodeColor(node.type, node.risk)} hover:stroke-white transition-colors duration-200 stroke-2`}
+                          filter={node.risk === 'high' ? 'url(#glow)' : ''}
+                        />
 
-                    {/* Shell Company Dashed Border */}
-                    {node.type === 'shell' && (
-                      <circle 
-                        cx={node.x} 
-                        cy={node.y} 
-                        r={node.r + 4} 
-                        fill="none" 
-                        stroke="#94a3b8" 
-                        strokeDasharray="4 4" 
-                      />
-                    )}
+                        {/* Shell Company Dashed Border */}
+                        {node.type === 'shell' && (
+                          <circle 
+                            cx={node.x} 
+                            cy={node.y} 
+                            r={node.r + 4} 
+                            fill="none" 
+                            stroke="#94a3b8" 
+                            strokeDasharray="4 4" 
+                          />
+                        )}
 
-                    {/* Label */}
-                    <text 
-                      x={node.x} 
-                      y={node.y + node.r + 20} 
-                      textAnchor="middle" 
-                      className="fill-slate-300 text-[10px] font-bold uppercase tracking-wider pointer-events-none"
-                    >
-                      {node.name}
-                    </text>
+                        {/* Label */}
+                        <text 
+                          x={node.x} 
+                          y={node.y + node.r + 20} 
+                          textAnchor="middle" 
+                          className="fill-slate-300 text-[10px] font-bold uppercase tracking-wider pointer-events-none"
+                        >
+                          {node.name}
+                        </text>
 
-                    {/* Tooltip on Hover */}
-                    {hoveredNode === node.id && (
-                       <foreignObject x={node.x + 20} y={node.y - 40} width="150" height="60">
-                         <div className="bg-slate-800 text-white text-xs p-2 rounded shadow-xl border border-slate-700">
-                           <p className="font-bold">{node.name}</p>
-                           <p className="text-[10px] opacity-80 uppercase">{node.type} • {node.risk} risk</p>
-                         </div>
-                       </foreignObject>
-                    )}
-                  </g>
-                ))}
-              </svg>
-            </div>
-
-            {/* AI Explanation Card (Overlay) */}
-            <div className="absolute bottom-4 left-4 right-4 md:right-auto md:w-96 bg-black/60 backdrop-blur-md border border-slate-700/50 p-4 rounded-xl text-slate-200">
-              <div className="flex gap-3">
-                <div className="bg-indigo-500/20 p-2 rounded-lg h-fit">
-                  <BrainCircuit size={20} className="text-indigo-400" />
+                        {/* Tooltip on Hover */}
+                        {hoveredNode === node.id && (
+                           <foreignObject x={node.x + 20} y={node.y - 40} width="150" height="60">
+                             <div className="bg-slate-800 text-white text-xs p-2 rounded shadow-xl border border-slate-700">
+                               <p className="font-bold">{node.name}</p>
+                               <p className="text-[10px] opacity-80 uppercase">{node.type} • {node.risk} risk</p>
+                             </div>
+                           </foreignObject>
+                        )}
+                      </g>
+                    ))}
+                  </svg>
                 </div>
-                <div>
-                   <h4 className="text-xs font-bold text-indigo-300 uppercase mb-1">AI Analysis</h4>
-                   <p className="text-sm leading-relaxed">
-                     "একই তিনটি কোম্পানি গত দুই বছরে অধিকাংশ কাজ পেয়েছে এবং তাদের মধ্যে অস্বাভাবিক অর্থের লেনদেন লক্ষ্য করা যাচ্ছে।"
-                   </p>
+
+                {/* AI Explanation Card (Overlay) */}
+                <div className="absolute bottom-4 left-4 right-4 md:right-auto md:w-96 bg-black/60 backdrop-blur-md border border-slate-700/50 p-4 rounded-xl text-slate-200">
+                  <div className="flex gap-3">
+                    <div className="bg-indigo-500/20 p-2 rounded-lg h-fit">
+                      <BrainCircuit size={20} className="text-indigo-400" />
+                    </div>
+                    <div>
+                       <h4 className="text-xs font-bold text-indigo-300 uppercase mb-1">AI Analysis</h4>
+                       <p className="text-sm leading-relaxed">
+                         "একই তিনটি কোম্পানি গত দুই বছরে অধিকাংশ কাজ পেয়েছে এবং তাদের মধ্যে অস্বাভাবিক অর্থের লেনদেন লক্ষ্য করা যাচ্ছে।"
+                       </p>
+                    </div>
+                  </div>
                 </div>
+              </>
+            ) : (
+              <div className="p-6 h-full flex flex-col bg-slate-50 dark:bg-slate-950">
+                <ProcurementViewer docs={MOCK_DOCS} timeline={MOCK_TIMELINE} isAdmin={isAdmin} />
               </div>
-            </div>
+            )}
           </GlassCard>
         </div>
 

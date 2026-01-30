@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from '../components/GlassCard';
+import { RestrictedButton } from '../components/RestrictedWrapper';
 import { 
   Siren, 
   ShieldAlert, 
@@ -185,14 +186,18 @@ export const CrisisControl: React.FC = () => {
               ].map((item) => (
                 <div 
                   key={item.key}
-                  onClick={() => handleToggle(item.key as keyof typeof toggles)}
+                  // onClick={() => handleToggle(item.key as keyof typeof toggles)} 
+                  // REPLACED with Restricted logic below
                   className={`
-                    p-4 rounded-xl border cursor-pointer transition-all duration-200 flex items-center gap-4
+                    p-4 rounded-xl border cursor-pointer transition-all duration-200 flex items-center gap-4 relative overflow-hidden group
                     ${toggles[item.key as keyof typeof toggles] 
                       ? 'bg-red-900/30 border-red-600/50' 
                       : 'bg-slate-800/50 border-slate-700 hover:border-slate-600'}
                   `}
                 >
+                  {/* Overlay Restricted Button if logic needed per item, but here we toggle state */}
+                  <div className="absolute inset-0 z-10" onClick={() => handleToggle(item.key as keyof typeof toggles)}></div>
+
                   <div className={`p-3 rounded-full ${toggles[item.key as keyof typeof toggles] ? 'bg-red-600 text-white' : 'bg-slate-700 text-slate-400'}`}>
                     <item.icon size={20} />
                   </div>
@@ -242,13 +247,14 @@ export const CrisisControl: React.FC = () => {
                 </div>
               </div>
 
-              <button 
+              <RestrictedButton 
+                permission="action:manage_crisis"
                 onClick={initiateActivation}
                 disabled={!reason}
                 className="w-full py-4 bg-red-600 hover:bg-red-700 disabled:bg-slate-700 disabled:text-slate-500 text-white font-bold rounded-xl shadow-lg shadow-red-900/30 transition-all flex items-center justify-center gap-2 uppercase tracking-widest text-sm"
               >
                 <Siren size={18} /> Activate Crisis Mode
-              </button>
+              </RestrictedButton>
             </GlassCard>
           ) : (
             // 6) Deactivation Panel
@@ -260,12 +266,13 @@ export const CrisisControl: React.FC = () => {
                <p className="text-slate-400 text-sm mb-6 max-w-md mx-auto">
                  All safety protocols are active. Normal operations are suspended. Return to normal only when the threat is neutralized.
                </p>
-               <button 
+               <RestrictedButton 
+                 permission="action:manage_crisis"
                  onClick={deactivateCrisis}
                  className="px-8 py-3 bg-emerald-600 hover:bg-emerald-700 text-white font-bold rounded-xl shadow-lg transition-all"
                >
                  Return to Normal Operations
-               </button>
+               </RestrictedButton>
             </GlassCard>
           )}
         </div>

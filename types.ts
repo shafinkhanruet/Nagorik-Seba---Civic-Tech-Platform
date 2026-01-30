@@ -34,3 +34,48 @@ export interface TranslationDictionary {
     en: string;
   };
 }
+
+// Notification Types
+export type NotificationType = 'project' | 'district' | 'report' | 'hospital' | 'system';
+
+export interface NotificationItem {
+  id: string;
+  type: NotificationType;
+  title: string;
+  message: string;
+  timestamp: string;
+  read: boolean;
+  link?: string;
+}
+
+export interface WatchlistItem {
+  id: string;
+  type: NotificationType;
+  name: string; // For display purposes
+}
+
+export interface NotificationSettings {
+  emailAlerts: boolean;
+  pushAlerts: boolean;
+  projectUpdates: boolean;
+  districtScores: boolean;
+  reportStatus: boolean;
+}
+
+// RTI Types
+export type RTIStatus = 'submitted' | 'acknowledged' | 'review' | 'responded' | 'closed';
+
+export interface RTIRequest {
+  id: string;
+  department: string;
+  subject: string;
+  details: string;
+  category: 'Budget' | 'Tender' | 'Policy' | 'Hospital' | 'Other';
+  isPublic: boolean;
+  status: RTIStatus;
+  dateFiled: string; // ISO Date
+  deadline: string; // ISO Date
+  response?: string;
+  applicantName: string; // Often anonymized in public view
+  trackingId: string;
+}

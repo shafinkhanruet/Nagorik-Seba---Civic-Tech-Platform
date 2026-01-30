@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from '../components/GlassCard';
 import { InfoTooltip } from '../components/InfoTooltip';
+import { FollowButton } from '../components/FollowButton';
 import { 
   Stethoscope, 
   Clock, 
@@ -272,6 +273,14 @@ export const HospitalMonitor: React.FC = () => {
                     : 'bg-purple-600 text-white'
                  }`}>
                     {t(`type_${hospital.type}`)}
+                 </div>
+                 <div className="absolute bottom-2 right-2">
+                   <FollowButton 
+                     id={hospital.id} 
+                     type="hospital" 
+                     name={language === 'bn' ? hospital.nameBn : hospital.name}
+                     className="bg-white/90 dark:bg-slate-900/90 backdrop-blur border-none shadow-sm"
+                   />
                  </div>
               </div>
 

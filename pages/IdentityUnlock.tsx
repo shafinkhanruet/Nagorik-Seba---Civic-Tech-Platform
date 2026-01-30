@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from '../components/GlassCard';
 import { ComplianceBanner } from '../components/ComplianceBanner';
+import { RestrictedButton } from '../components/RestrictedWrapper';
 import { 
   Unlock, 
   Shield, 
@@ -172,12 +173,13 @@ export const IdentityUnlock: React.FC = () => {
            {/* Footer Actions */}
            <div className="pt-6 border-t border-slate-100 dark:border-slate-800 mt-auto flex justify-end">
              {step < 4 ? (
-               <button 
+               <RestrictedButton 
+                 permission="action:unlock_identity"
                  onClick={handleNext}
                  className="px-6 py-2 bg-indigo-600 hover:bg-indigo-700 text-white font-bold rounded-lg shadow-lg flex items-center gap-2"
                >
                  {step === 1 ? 'Submit Request' : step === 2 ? 'Simulate Approval' : 'Complete Review'} <ArrowRight size={16} />
-               </button>
+               </RestrictedButton>
              ) : (
                <button className="px-6 py-2 bg-slate-200 dark:bg-slate-700 text-slate-600 dark:text-slate-300 font-bold rounded-lg hover:bg-slate-300 dark:hover:bg-slate-600">
                  Close Case

@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from '../components/GlassCard';
 import { SensitiveContentWrapper } from '../components/SensitiveContentWrapper';
+import { EvidenceAnalysis, EvidenceMetrics } from '../components/EvidenceAnalysis';
 import { 
   Shield, 
   Filter, 
@@ -51,7 +52,20 @@ interface EvidenceItem {
   uploaderTrust: number;
   fileSize: string;
   custodyLog: CustodyEvent[];
+  analysis?: EvidenceMetrics; // New field
 }
+
+// Generate consistent mock analysis if missing
+const generateMockAnalysis = (id: string): EvidenceMetrics => {
+  const seed = id.charCodeAt(id.length - 1);
+  return {
+    credibilityScore: (seed % 40) + 60, // 60-99
+    forensicResult: seed % 3 === 0 ? 'authentic' : seed % 3 === 1 ? 'edited' : 'unclear',
+    tamperingRisk: seed % 3 === 0 ? 'low' : seed % 3 === 1 ? 'medium' : 'high',
+    freshness: seed % 2 === 0 ? 'recent' : 'old',
+    chainStatus: seed % 2 === 0 ? 'verified' : 'pending'
+  };
+};
 
 const MOCK_EVIDENCE: EvidenceItem[] = [
   {
@@ -304,6 +318,12 @@ export const EvidenceVault: React.FC = () => {
                   )}
                 </SensitiveContentWrapper>
               </div>
+
+              {/* NEW: Evidence Analysis Panel */}
+              <EvidenceAnalysis 
+                metrics={selectedItem.analysis || generateMockAnalysis(selectedItem.id)} 
+                isAdmin={true} 
+              />
 
               {/* Metadata Table */}
               <div>

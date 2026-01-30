@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from '../components/GlassCard';
+import { FollowButton } from '../components/FollowButton';
 import { 
   Settings, 
   Map, 
@@ -188,6 +189,14 @@ export const DistrictControls: React.FC = () => {
                     <option key={d.id} value={d.id}>{language === 'bn' ? d.nameBn : d.name}</option>
                   ))}
                 </select>
+              </div>
+              <div className="mt-3">
+                <FollowButton 
+                  id={selectedId} 
+                  type="district" 
+                  name={language === 'bn' ? selectedDistrict.nameBn : selectedDistrict.name} 
+                  className="w-full justify-center"
+                />
               </div>
             </div>
 

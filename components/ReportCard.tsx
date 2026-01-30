@@ -3,6 +3,11 @@ import { useApp } from '../context/AppContext';
 import { GlassCard } from './GlassCard';
 import { InfoTooltip } from './InfoTooltip';
 import { SensitiveContentWrapper } from './SensitiveContentWrapper';
+import { EvidenceAnalysis, EvidenceMetrics } from './EvidenceAnalysis';
+import { AuthorityResponsePanel, AuthorityResponseData } from './AuthorityResponsePanel';
+import { FollowButton } from './FollowButton';
+import { usePermission } from '../hooks/usePermission';
+import { useToast } from '../context/ToastContext';
 import { 
   AreaChart, Area, XAxis, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
@@ -71,6 +76,7 @@ export interface ReportData {
   status: 'review' | 'verified' | 'disputed';
   influenceAnalysis?: InfluenceData;
   isFlagged?: boolean; // Mock status for appeal/moderation
+  authorityResponse?: AuthorityResponseData; // New field
 }
 
 interface ReportCardProps {
@@ -144,6 +150,15 @@ const MOCK_TIMELINE = [
   { id: 3, title: 'event_evidence', time: '1 day ago', icon: FileUp, color: 'text-amber-500' },
   { id: 4, title: 'event_review', time: '5 hours ago', icon: ShieldAlert, color: 'text-emerald-500' },
 ];
+
+// Helper for generating mock forensics
+const getMockAnalysis = (id: number): EvidenceMetrics => ({
+  credibilityScore: 85 + (id % 10),
+  forensicResult: 'authentic',
+  tamperingRisk: 'low',
+  freshness: 'recent',
+  chainStatus: 'verified'
+});
 
 // --- REPORT ABUSE MODAL COMPONENT ---
 interface ReportModalProps {
@@ -255,11 +270,18 @@ const TransparencyDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = (
 
 export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
   const { t, language } = useApp();
+  const { addToast } = useToast();
+  const { can } = usePermission();
+  
+  const [localReport, setLocalReport] = useState(report);
   const [isExpanded, setIsExpanded] = useState(false);
   const [showInfluence, setShowInfluence] = useState(false);
   const [activeTab, setActiveTab] = useState<'discussion' | 'evidence' | 'timeline'>('discussion');
   const [showReportModal, setShowReportModal] = useState(false);
   const [showTransparencyLog, setShowTransparencyLog] = useState(false);
+  
+  // Evidence Analysis Modal
+  const [selectedEvidence, setSelectedEvidence] = useState<any | null>(null);
 
   // Voting State
   const [voteState, setVoteState] = useState<'none' | 'supported' | 'doubted'>('none');
@@ -274,6 +296,9 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
   const [sortMode, setSortMode] = useState<'trusted' | 'recent'>('trusted');
   const [showLocalOnly, setShowLocalOnly] = useState(false);
   const [showExpertOnly, setShowExpertOnly] = useState(false);
+
+  // Permission Check
+  const canManageReport = can('action:moderate');
 
   // Calculate User Weight
   const userWeight = (USER_STATS.trustScore / 100) * USER_STATS.areaFactor * USER_STATS.accountAgeFactor;
@@ -320,6 +345,11 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   }
+
+  const handleAuthoritySubmit = (data: AuthorityResponseData) => {
+    setLocalReport(prev => ({ ...prev, authorityResponse: data }));
+    addToast('Authority response submitted successfully', 'success');
+  };
 
   const handleCommentVote = (id: number, type: 'agree' | 'disagree') => {
     setComments(prev => prev.map(c => {
@@ -521,9 +551,9 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
           <SensitiveContentWrapper 
             key={idx} 
             isSensitive={item.isSensitive}
-            className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-video bg-slate-100 dark:bg-slate-800"
+            className="rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-video bg-slate-100 dark:bg-slate-800 cursor-pointer"
           >
-            <div className="relative group w-full h-full">
+            <div className="relative group w-full h-full" onClick={() => setSelectedEvidence(item)}>
                {item.type === 'image' && <img src={item.url} alt="proof" className="w-full h-full object-cover" />}
                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                   <button className="p-2 bg-white/20 backdrop-blur rounded-full text-white hover:bg-white/40">
@@ -577,6 +607,31 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
   return (
     <GlassCard className="transition-all duration-300 hover:shadow-xl relative overflow-hidden">
       
+      {/* Evidence Modal */}
+      {selectedEvidence && (
+        <div className="fixed inset-0 z-[100] flex items-center justify-center p-4">
+          <div className="absolute inset-0 bg-black/80 backdrop-blur-md" onClick={() => setSelectedEvidence(null)}></div>
+          <div className="relative z-10 w-full max-w-lg bg-white dark:bg-slate-900 rounded-xl overflow-hidden shadow-2xl animate-scale-in flex flex-col max-h-[90vh]">
+             <div className="relative bg-black flex items-center justify-center min-h-[200px]">
+               <button 
+                 onClick={() => setSelectedEvidence(null)}
+                 className="absolute top-4 right-4 z-20 p-2 bg-black/50 text-white rounded-full hover:bg-black/70"
+               >
+                 <X size={20} />
+               </button>
+               {selectedEvidence.type === 'image' ? (
+                 <img src={selectedEvidence.url} className="max-h-[300px] w-auto object-contain" />
+               ) : (
+                 <div className="text-white">Video Preview Unavailable</div>
+               )}
+             </div>
+             <div className="p-4 overflow-y-auto">
+               <EvidenceAnalysis metrics={getMockAnalysis(1)} isAdmin={false} />
+             </div>
+          </div>
+        </div>
+      )}
+
       {/* Report Modal */}
       {showReportModal && (
         <ReportModal onClose={() => setShowReportModal(false)} onSubmit={handleReportSubmit} />
@@ -625,17 +680,11 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
             </div>
           </div>
         </div>
-        <div className="flex flex-col items-end gap-1">
+        <div className="flex flex-col items-end gap-2">
           <div className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide ${statusColors[report.status]}`}>
             {t(`status_${report.status}`)}
           </div>
-          {/* Transparency Trigger */}
-          <button 
-             onClick={() => setShowTransparencyLog(true)}
-             className="flex items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
-          >
-             <FileClock size={10} /> {t('transparency_log')}
-          </button>
+          <FollowButton id={report.id} type="report" name={report.category} />
         </div>
       </div>
 
@@ -860,8 +909,15 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
         </div>
       </div>
 
-      {/* NEW: Investigation Tabs Area */}
-      <div className="mt-2">
+      {/* NEW: Authority Response Panel */}
+      <AuthorityResponsePanel 
+        data={localReport.authorityResponse}
+        canManage={canManageReport}
+        onSave={handleAuthoritySubmit}
+      />
+
+      {/* Investigation Tabs Area */}
+      <div className="mt-6">
         <div className="flex border-b border-slate-100 dark:border-slate-800 mb-4">
            {[
              { id: 'discussion', icon: MessageSquare, label: 'tab_discussion' },
