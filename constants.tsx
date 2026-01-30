@@ -171,6 +171,26 @@ export const TRANSLATIONS: TranslationDictionary = {
   sortBy: { bn: 'সাজান', en: 'Sort By' },
   filterDistrict: { bn: 'জেলা', en: 'District' },
   filterType: { bn: 'ধরন', en: 'Type' },
+
+  // Community Repair
+  repairTitle: { bn: 'কমিউনিটি মেরামত', en: 'Community Repair' },
+  iFixedIt: { bn: 'আমি ঠিক করেছি', en: 'I Fixed It' },
+  urgency: { bn: 'জরুরী মাত্রা', en: 'Urgency' },
+  verifyFix: { bn: 'যাচাই করুন', en: 'Verify Fix' },
+  cat_road: { bn: 'রাস্তা ও পথ', en: 'Road & Path' },
+  cat_drain: { bn: 'ড্রেনেজ', en: 'Drainage' },
+  cat_light: { bn: 'ল্যাম্পপোস্ট', en: 'Street Light' },
+  cat_trash: { bn: 'বর্জ্য অপসারণ', en: 'Trash Removal' },
+  step_reported: { bn: 'রিপোর্ট করা হয়েছে', en: 'Reported' },
+  step_attempt: { bn: 'মেরামত চলছে', en: 'Repair Attempt' },
+  step_verify: { bn: 'যাচাই চলছে', en: 'Verifying' },
+  step_closed: { bn: 'সম্পন্ন', en: 'Closed' },
+  credits: { bn: 'ক্রেডিট', en: 'Credits' },
+  autoResolve: { bn: 'পর্যাপ্ত যাচাই হলে এটি স্বয়ংক্রিয়ভাবে সম্পন্ন হিসেবে গণ্য হবে।', en: 'Will auto-resolve after sufficient verification.' },
+  uploadProof: { bn: 'প্রমাণ আপলোড করুন', en: 'Upload Proof' },
+  describeFix: { bn: 'কাজের বিবরণ দিন', en: 'Describe the fix' },
+  submitFix: { bn: 'জমা দিন', en: 'Submit Fix' },
+  rewardClaim: { bn: 'রিওয়ার্ড', en: 'Reward' },
 };
 
 export const NAV_ITEMS: NavItem[] = [

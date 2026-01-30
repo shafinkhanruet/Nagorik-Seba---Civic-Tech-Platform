@@ -12,6 +12,7 @@ import { GovtProjects } from './pages/GovtProjects';
 import { TenderAnalysis } from './pages/TenderAnalysis';
 import { IntegrityIndex } from './pages/IntegrityIndex';
 import { HospitalMonitor } from './pages/HospitalMonitor';
+import { CommunityRepair } from './pages/CommunityRepair';
 
 // Placeholder components for other routes
 const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
@@ -50,7 +51,7 @@ const AppLayout: React.FC = () => {
               <Route path="/tenders" element={<TenderAnalysis />} />
               <Route path="/integrity" element={<IntegrityIndex />} />
               <Route path="/hospitals" element={<HospitalMonitor />} />
-              <Route path="/repair" element={<PlaceholderPage title={t('communityRepair')} />} />
+              <Route path="/repair" element={<CommunityRepair />} />
               <Route path="*" element={<Navigate to="/" replace />} />
             </Routes>
           </div>
