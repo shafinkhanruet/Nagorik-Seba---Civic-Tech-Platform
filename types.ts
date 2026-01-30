@@ -2,6 +2,7 @@ import { LucideIcon } from 'lucide-react';
 
 export type Language = 'bn' | 'en';
 export type Theme = 'light' | 'dark';
+export type Role = 'citizen' | 'moderator' | 'admin' | 'superadmin';
 
 export interface NavItem {
   id: string;

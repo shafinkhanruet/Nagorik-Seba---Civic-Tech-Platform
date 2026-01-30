@@ -1,7 +1,7 @@
 import React from 'react';
 import { NavLink } from 'react-router-dom';
 import { useApp } from '../context/AppContext';
-import { NAV_ITEMS } from '../constants';
+import { CITIZEN_NAV_ITEMS } from '../constants';
 import { X } from 'lucide-react';
 
 interface SidebarProps {
@@ -11,10 +11,6 @@ interface SidebarProps {
 
 export const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeMobileMenu }) => {
   const { language } = useApp();
-
-  // Split nav items to separate auth links
-  const mainNavItems = NAV_ITEMS.filter(item => !['login', 'signup'].includes(item.id));
-  const authNavItems = NAV_ITEMS.filter(item => ['login', 'signup'].includes(item.id));
 
   return (
     <>
@@ -62,7 +58,7 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeMobileMenu }) => 
 
         {/* Navigation Items - Scrollable Area */}
         <nav className="flex-1 p-4 space-y-1 overflow-y-auto">
-          {mainNavItems.map((item) => (
+          {CITIZEN_NAV_ITEMS.map((item) => (
             <NavLink
               key={item.id}
               to={item.path}
@@ -84,34 +80,6 @@ export const Sidebar: React.FC<SidebarProps> = ({ isOpen, closeMobileMenu }) => 
               </span>
             </NavLink>
           ))}
-
-          <div className="pt-4 mt-4 border-t border-slate-200/50 dark:border-slate-800/50">
-            <p className="px-4 text-xs font-semibold text-slate-400 uppercase tracking-wider mb-2">
-              {language === 'bn' ? 'অ্যাকাউন্ট' : 'Account'}
-            </p>
-            {authNavItems.map((item) => (
-              <NavLink
-                key={item.id}
-                to={item.path}
-                onClick={closeMobileMenu}
-                className={({ isActive }) => `
-                  flex items-center gap-3 px-4 py-3.5 rounded-xl transition-all duration-200 group
-                  ${isActive 
-                    ? 'bg-emerald-50 dark:bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 font-semibold shadow-sm' 
-                    : 'text-slate-600 dark:text-slate-400 hover:bg-slate-50 dark:hover:bg-slate-800/50 hover:text-slate-900 dark:hover:text-slate-200'}
-                `}
-              >
-                <item.icon 
-                  size={22} 
-                  strokeWidth={1.5}
-                  className="group-hover:scale-110 transition-transform duration-200" 
-                />
-                <span className="text-sm font-medium">
-                  {language === 'bn' ? item.labelBn : item.labelEn}
-                </span>
-              </NavLink>
-            ))}
-          </div>
         </nav>
         
         {/* Bottom CTA */}

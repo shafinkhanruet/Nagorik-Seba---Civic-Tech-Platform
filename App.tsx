@@ -1,8 +1,11 @@
-import React, { useState } from 'react';
-import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
+import React from 'react';
+import { HashRouter, Routes, Route, Navigate, Outlet } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
-import { Sidebar } from './components/Sidebar';
-import { Header } from './components/Header';
+import { CitizenLayout } from './layouts/CitizenLayout';
+import { AdminLayout } from './layouts/AdminLayout';
+import { RoleSwitcher } from './components/RoleSwitcher';
+
+// Pages
 import { Dashboard } from './pages/Dashboard';
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
@@ -14,56 +17,83 @@ import { IntegrityIndex } from './pages/IntegrityIndex';
 import { HospitalMonitor } from './pages/HospitalMonitor';
 import { CommunityRepair } from './pages/CommunityRepair';
 import { DigitalOath } from './pages/DigitalOath';
+import { ModerationQueue } from './pages/ModerationQueue';
+import { AuditLogs } from './pages/AuditLogs';
+import { CourtOrders } from './pages/CourtOrders';
+import { IdentityUnlock } from './pages/IdentityUnlock';
 
-// Placeholder components for other routes
-const PlaceholderPage: React.FC<{ title: string }> = ({ title }) => (
-  <div className="flex flex-col items-center justify-center h-[60vh] text-slate-400">
-    <div className="w-24 h-24 mb-6 rounded-full bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-      <span className="text-4xl">🚧</span>
+// Placeholder Component for Admin Pages not yet implemented
+const PlaceholderAdminPage: React.FC<{ title: string }> = ({ title }) => (
+  <div className="flex flex-col items-center justify-center h-[60vh] text-slate-500">
+    <div className="w-20 h-20 mb-6 rounded-full bg-slate-900 border border-slate-800 flex items-center justify-center animate-pulse">
+      <span className="text-3xl">🚧</span>
     </div>
-    <h2 className="text-2xl font-bold text-slate-700 dark:text-slate-300 mb-2">{title}</h2>
-    <p>This page is currently under development.</p>
+    <h2 className="text-2xl font-bold text-slate-300 mb-2">{title}</h2>
+    <p className="text-slate-600 font-mono">Module Under Construction</p>
   </div>
 );
 
-const AppLayout: React.FC = () => {
-  const [sidebarOpen, setSidebarOpen] = useState(false);
-  const { t } = useApp();
+// Protected Route Component
+const ProtectedRoute: React.FC<{ allowedRoles: string[] }> = ({ allowedRoles }) => {
+  const { role } = useApp();
+  
+  if (!allowedRoles.includes(role)) {
+    // If user is trying to access admin but is citizen, redirect to app dashboard
+    if (role === 'citizen') return <Navigate to="/app" replace />;
+    // If unauthorized admin level, maybe just redirect to admin dashboard
+    return <Navigate to="/admin" replace />;
+  }
 
+  return <Outlet />;
+};
+
+const AppRoutes: React.FC = () => {
   return (
-    <div className="flex min-h-screen bg-[radial-gradient(ellipse_at_top_left,_var(--tw-gradient-stops))] from-emerald-50 via-slate-50 to-slate-100 dark:from-slate-900 dark:via-slate-900 dark:to-slate-950 transition-colors duration-300">
-      <Sidebar 
-        isOpen={sidebarOpen} 
-        closeMobileMenu={() => setSidebarOpen(false)} 
-      />
-      
-      <div className="flex-1 flex flex-col min-w-0">
-        <Header toggleSidebar={() => setSidebarOpen(!sidebarOpen)} />
-        
-        <main className="flex-1 p-4 md:p-8 overflow-x-hidden">
-          <div className="max-w-7xl mx-auto">
-            <Routes>
-              <Route path="/" element={<Dashboard />} />
-              <Route path="/login" element={<Login />} />
-              <Route path="/signup" element={<Signup />} />
-              <Route path="/reports" element={<LiveReports />} />
-              <Route path="/proposals" element={<ProjectProposals />} />
-              <Route path="/govt-projects" element={<GovtProjects />} />
-              <Route path="/tenders" element={<TenderAnalysis />} />
-              <Route path="/integrity" element={<IntegrityIndex />} />
-              <Route path="/hospitals" element={<HospitalMonitor />} />
-              <Route path="/repair" element={<CommunityRepair />} />
-              <Route path="/digital-oath" element={<DigitalOath />} />
-              <Route path="*" element={<Navigate to="/" replace />} />
-            </Routes>
-          </div>
-        </main>
+    <Routes>
+      {/* Public Routes */}
+      <Route path="/login" element={<Login />} />
+      <Route path="/signup" element={<Signup />} />
+      <Route path="/" element={<Navigate to="/app" replace />} />
 
-        <footer className="py-6 text-center text-xs text-slate-400 border-t border-slate-200/50 dark:border-slate-800/50">
-          <p>{t('footerDisclaimer')}</p>
-        </footer>
-      </div>
-    </div>
+      {/* Citizen Panel Routes */}
+      <Route path="/app" element={<CitizenLayout />}>
+        <Route index element={<Dashboard />} />
+        <Route path="reports" element={<LiveReports />} />
+        <Route path="proposals" element={<ProjectProposals />} />
+        <Route path="govt-projects" element={<GovtProjects />} />
+        <Route path="tenders" element={<TenderAnalysis />} /> {/* Public View */}
+        <Route path="integrity" element={<IntegrityIndex />} />
+        <Route path="hospitals" element={<HospitalMonitor />} />
+        <Route path="repair" element={<CommunityRepair />} />
+        <Route path="digital-oath" element={<DigitalOath />} />
+      </Route>
+
+      {/* Admin Panel Routes - Protected */}
+      <Route path="/admin" element={<ProtectedRoute allowedRoles={['moderator', 'admin', 'superadmin']} />}>
+        <Route element={<AdminLayout />}>
+          <Route index element={<PlaceholderAdminPage title="Admin Dashboard" />} />
+          
+          <Route path="moderation" element={<ModerationQueue />} />
+          <Route path="reports" element={<PlaceholderAdminPage title="Report Review" />} />
+          <Route path="evidence" element={<PlaceholderAdminPage title="Evidence Vault" />} />
+          <Route path="anomalies" element={<PlaceholderAdminPage title="Vote Anomalies" />} />
+          <Route path="bots" element={<PlaceholderAdminPage title="Bot Activity" />} />
+          <Route path="approvals" element={<PlaceholderAdminPage title="Project Approvals" />} />
+          <Route path="tenders" element={<TenderAnalysis />} /> {/* Admin Context reuse for now, ideally separate */}
+          <Route path="districts" element={<PlaceholderAdminPage title="District Controls" />} />
+          
+          {/* High Security Areas */}
+          <Route element={<ProtectedRoute allowedRoles={['admin', 'superadmin']} />}>
+             <Route path="audit-logs" element={<AuditLogs />} />
+             <Route path="court-orders" element={<CourtOrders />} />
+             <Route path="identity-unlock" element={<IdentityUnlock />} />
+          </Route>
+        </Route>
+      </Route>
+
+      {/* Fallback */}
+      <Route path="*" element={<Navigate to="/app" replace />} />
+    </Routes>
   );
 };
 
@@ -71,7 +101,8 @@ const App: React.FC = () => {
   return (
     <AppProvider>
       <HashRouter>
-        <AppLayout />
+        <AppRoutes />
+        <RoleSwitcher />
       </HashRouter>
     </AppProvider>
   );

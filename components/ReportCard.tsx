@@ -34,7 +34,13 @@ import {
   Hammer,
   Calculator,
   Scale,
-  Stethoscope
+  Stethoscope,
+  Flag,
+  X,
+  Gavel,
+  FileClock,
+  User as UserIcon,
+  Bot
 } from 'lucide-react';
 
 export interface InfluenceData {
@@ -62,6 +68,7 @@ export interface ReportData {
   weightedSupport: number;
   status: 'review' | 'verified' | 'disputed';
   influenceAnalysis?: InfluenceData;
+  isFlagged?: boolean; // Mock status for appeal/moderation
 }
 
 interface ReportCardProps {
@@ -136,17 +143,128 @@ const MOCK_TIMELINE = [
   { id: 4, title: 'event_review', time: '5 hours ago', icon: ShieldAlert, color: 'text-emerald-500' },
 ];
 
+// --- REPORT ABUSE MODAL COMPONENT ---
+interface ReportModalProps {
+  onClose: () => void;
+  onSubmit: () => void;
+}
+
+const ReportModal: React.FC<ReportModalProps> = ({ onClose, onSubmit }) => {
+  const { t } = useApp();
+  const [reason, setReason] = useState('reason_misinfo');
+  
+  return (
+    <div className="fixed inset-0 z-50 flex items-center justify-center p-4">
+      <div className="absolute inset-0 bg-black/60 backdrop-blur-sm" onClick={onClose}></div>
+      <div className="relative z-10 w-full max-w-md bg-white dark:bg-slate-900 rounded-xl shadow-2xl overflow-hidden border border-slate-200 dark:border-slate-800 animate-scale-in">
+        <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+          <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+            <Flag size={18} className="text-red-500" /> {t('report_abuse')}
+          </h3>
+          <button onClick={onClose} className="p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+            <X size={20} />
+          </button>
+        </div>
+        <div className="p-5 space-y-4">
+          <div>
+             <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">{t('flag_reason')}</label>
+             <select 
+               value={reason} 
+               onChange={(e) => setReason(e.target.value)}
+               className="w-full p-2.5 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-red-500"
+             >
+               <option value="reason_misinfo">{t('reason_misinfo')}</option>
+               <option value="reason_defamation">{t('reason_defamation')}</option>
+               <option value="reason_hate">{t('reason_hate')}</option>
+               <option value="reason_fake">{t('reason_fake')}</option>
+               <option value="reason_other">{t('reason_other')}</option>
+             </select>
+          </div>
+          <div>
+            <label className="block text-xs font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">Description (Optional)</label>
+            <textarea 
+              className="w-full p-3 bg-slate-50 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 rounded-lg text-sm outline-none focus:ring-2 focus:ring-red-500 min-h-[80px]"
+              placeholder="..."
+            />
+          </div>
+          <button 
+            onClick={onSubmit}
+            className="w-full py-2.5 bg-red-500 hover:bg-red-600 text-white font-bold rounded-lg shadow-lg shadow-red-500/30 transition-all active:scale-[0.98]"
+          >
+            {t('submit_report')}
+          </button>
+        </div>
+      </div>
+    </div>
+  );
+};
+
+// --- TRANSPARENCY DRAWER ---
+interface LogEntry {
+  type: 'ai' | 'user' | 'mod' | 'legal';
+  text: string;
+  time: string;
+}
+
+const TransparencyDrawer: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ isOpen, onClose }) => {
+  const { t } = useApp();
+  const logs: LogEntry[] = [
+    { type: 'ai', text: 'log_ai_flag', time: '2023-11-15 10:30 AM' },
+    { type: 'user', text: 'log_user_report', time: '2023-11-15 12:45 PM' },
+    { type: 'mod', text: 'log_mod_action', time: '2023-11-15 02:00 PM' },
+  ];
+
+  if (!isOpen) return null;
+
+  return (
+    <div className="absolute inset-0 z-20 bg-white/95 dark:bg-slate-900/95 backdrop-blur-md flex flex-col animate-slide-in-right">
+      <div className="p-4 border-b border-slate-100 dark:border-slate-800 flex justify-between items-center">
+         <h3 className="font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+           <FileClock size={18} /> {t('transparency_log')}
+         </h3>
+         <button onClick={onClose} className="p-1 text-slate-400 hover:bg-slate-100 dark:hover:bg-slate-800 rounded-lg">
+           <X size={20} />
+         </button>
+      </div>
+      <div className="flex-1 overflow-y-auto p-4 relative">
+         <div className="absolute left-6 top-4 bottom-4 w-0.5 bg-slate-200 dark:bg-slate-700"></div>
+         <div className="space-y-6">
+           {logs.map((log, idx) => (
+             <div key={idx} className="relative pl-8">
+               <div className={`absolute left-[5px] top-1 w-3 h-3 rounded-full border-2 border-white dark:border-slate-900 
+                 ${log.type === 'ai' ? 'bg-purple-500' : log.type === 'mod' ? 'bg-blue-500' : 'bg-slate-400'}
+               `}></div>
+               <div className="bg-slate-50 dark:bg-slate-800 p-3 rounded-lg border border-slate-100 dark:border-slate-700">
+                  <div className="flex items-center gap-2 mb-1">
+                    {log.type === 'ai' && <Bot size={14} className="text-purple-500" />}
+                    {log.type === 'user' && <UserIcon size={14} className="text-slate-500" />}
+                    {log.type === 'mod' && <ShieldAlert size={14} className="text-blue-500" />}
+                    <span className="text-xs font-bold text-slate-700 dark:text-slate-300">{t(log.text)}</span>
+                  </div>
+                  <p className="text-[10px] text-slate-400 font-mono">{log.time}</p>
+               </div>
+             </div>
+           ))}
+         </div>
+      </div>
+    </div>
+  );
+}
+
 export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
   const { t, language } = useApp();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showInfluence, setShowInfluence] = useState(false);
   const [activeTab, setActiveTab] = useState<'discussion' | 'evidence' | 'timeline'>('discussion');
+  const [showReportModal, setShowReportModal] = useState(false);
+  const [showTransparencyLog, setShowTransparencyLog] = useState(false);
 
   // Voting State
   const [voteState, setVoteState] = useState<'none' | 'supported' | 'doubted'>('none');
   const [weightedScore, setWeightedScore] = useState(report.weightedSupport);
   const [rawSupportCount, setRawSupportCount] = useState(Math.floor(report.weightedSupport * 0.85));
   const [showToast, setShowToast] = useState(false);
+  const [toastMessage, setToastMessage] = useState('');
   const [animateScore, setAnimateScore] = useState(false);
 
   // Comments State
@@ -189,9 +307,17 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
       setRawSupportCount(prev => prev + 1);
       setTimeout(() => setAnimateScore(false), 500);
     }
+    setToastMessage(t('iFixedIt') === 'I Fixed It' ? 'Opinion Recorded' : 'আপনার মতামত গ্রহণ করা হয়েছে');
     setShowToast(true);
     setTimeout(() => setShowToast(false), 3000);
   };
+
+  const handleReportSubmit = () => {
+    setShowReportModal(false);
+    setToastMessage(t('report_submitted'));
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  }
 
   const handleCommentVote = (id: number, type: 'agree' | 'disagree') => {
     setComments(prev => prev.map(c => {
@@ -286,7 +412,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
           const badge = comment.profession ? getBadgeInfo(comment.profession) : null;
           
           return (
-            <div key={comment.id} className="flex gap-3 p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-colors">
+            <div key={comment.id} className="flex gap-3 p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-colors relative group">
               <div className="flex flex-col items-center gap-2">
                 <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow-sm ${comment.trustScore > 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
                   {comment.trustScore}%
@@ -347,8 +473,14 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
                   >
                     <ThumbsDown size={12} /> {comment.disagrees} <span className="hidden sm:inline">{t('disagree')}</span>
                   </button>
-                  <button className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-blue-500 transition-colors ml-auto">
-                     <CornerDownRight size={12} /> {t('reply')}
+                  
+                  {/* Report Comment Button */}
+                  <button 
+                    onClick={() => setShowReportModal(true)}
+                    className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-red-500 transition-colors ml-auto opacity-0 group-hover:opacity-100"
+                    title={t('report_abuse')}
+                  >
+                     <Flag size={12} />
                   </button>
                 </div>
               </div>
@@ -437,12 +569,20 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
   return (
     <GlassCard className="transition-all duration-300 hover:shadow-xl relative overflow-hidden">
       
+      {/* Report Modal */}
+      {showReportModal && (
+        <ReportModal onClose={() => setShowReportModal(false)} onSubmit={handleReportSubmit} />
+      )}
+
+      {/* Transparency Drawer Overlay */}
+      <TransparencyDrawer isOpen={showTransparencyLog} onClose={() => setShowTransparencyLog(false)} />
+
       {/* Toast Notification */}
       {showToast && (
         <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 animate-fade-in-down">
           <div className="bg-slate-800 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl flex items-center gap-2">
             <CheckCircle2 size={14} className="text-emerald-400" />
-            {t('iFixedIt') === 'I Fixed It' ? 'Opinion Recorded' : 'আপনার মতামত গ্রহণ করা হয়েছে'}
+            {toastMessage}
           </div>
         </div>
       )}
@@ -477,10 +617,37 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
             </div>
           </div>
         </div>
-        <div className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide ${statusColors[report.status]}`}>
-          {t(`status_${report.status}`)}
+        <div className="flex flex-col items-end gap-1">
+          <div className={`px-2.5 py-1 rounded-lg text-xs font-bold uppercase tracking-wide ${statusColors[report.status]}`}>
+            {t(`status_${report.status}`)}
+          </div>
+          {/* Transparency Trigger */}
+          <button 
+             onClick={() => setShowTransparencyLog(true)}
+             className="flex items-center gap-1 text-[10px] font-bold text-slate-400 hover:text-slate-600 dark:hover:text-slate-200 transition-colors"
+          >
+             <FileClock size={10} /> {t('transparency_log')}
+          </button>
         </div>
       </div>
+
+      {/* Appeal Status Widget (Mock based on isFlagged) */}
+      {(report.status === 'disputed' || report.isFlagged) && (
+        <div className="mb-4 bg-amber-50 dark:bg-amber-900/10 border border-amber-200 dark:border-amber-800/30 rounded-lg p-3 flex items-center justify-between">
+           <div className="flex items-center gap-3">
+              <div className="p-2 bg-amber-100 dark:bg-amber-900/30 rounded-full text-amber-600 dark:text-amber-400">
+                 <Gavel size={16} />
+              </div>
+              <div>
+                 <p className="text-xs font-bold text-slate-700 dark:text-slate-200 uppercase">{t('appeal_status')}</p>
+                 <p className="text-sm font-bold text-amber-600 dark:text-amber-400">{t('status_pending')}</p>
+              </div>
+           </div>
+           <button className="text-xs font-bold text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200 underline">
+             View Details
+           </button>
+        </div>
+      )}
 
       {/* Main Body */}
       <div className="mb-5">
@@ -656,6 +823,15 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
 
         {/* Action Buttons */}
         <div className="flex gap-2">
+           {/* Report Button */}
+           <button 
+             onClick={() => setShowReportModal(true)}
+             className="px-3 py-2 rounded-lg bg-slate-100 dark:bg-slate-800 text-slate-400 hover:text-red-500 hover:bg-red-50 dark:hover:bg-red-900/20 transition-all"
+             title={t('report_abuse')}
+           >
+             <Flag size={14} />
+           </button>
+
           <button 
             onClick={() => handleVote('supported')}
             disabled={voteState !== 'none'}

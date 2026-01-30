@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Language, Theme } from '../types';
+import { Language, Theme, Role } from '../types';
 import { TRANSLATIONS } from '../constants';
 
 interface AppContextType {
@@ -7,6 +7,8 @@ interface AppContextType {
   toggleLanguage: () => void;
   theme: Theme;
   toggleTheme: () => void;
+  role: Role;
+  setRole: (role: Role) => void;
   t: (key: string) => string;
 }
 
@@ -15,6 +17,7 @@ const AppContext = createContext<AppContextType | undefined>(undefined);
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [language, setLanguage] = useState<Language>('bn');
   const [theme, setTheme] = useState<Theme>('light');
+  const [role, setRole] = useState<Role>('citizen');
 
   // Load theme from local storage or system preference
   useEffect(() => {
@@ -51,7 +54,7 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
   };
 
   return (
-    <AppContext.Provider value={{ language, toggleLanguage, theme, toggleTheme, t }}>
+    <AppContext.Provider value={{ language, toggleLanguage, theme, toggleTheme, role, setRole, t }}>
       {children}
     </AppContext.Provider>
   );
