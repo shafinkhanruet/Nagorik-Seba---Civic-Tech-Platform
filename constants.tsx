@@ -80,7 +80,42 @@ export const TRANSLATIONS: TranslationDictionary = {
   status_disputed: { bn: 'বিতর্কিত', en: 'Disputed' },
   anonymous: { bn: 'বেনামী', en: 'Anonymous' },
   evidence: { bn: 'প্রমাণসমূহ', en: 'Evidence' },
+  
+  // Tabs
+  tab_discussion: { bn: 'আলোচনা', en: 'Discussion' },
+  tab_evidence: { bn: 'অতিরিক্ত প্রমাণ', en: 'Add Evidence' },
+  tab_timeline: { bn: 'টাইমলাইন', en: 'Timeline' },
+  
+  // Discussion
+  sort_trusted: { bn: 'বিশ্বস্ত', en: 'Most Trusted' },
+  sort_recent: { bn: 'সাম্প্রতিক', en: 'Recent' },
+  local_resident: { bn: 'স্থানীয়', en: 'Local' },
+  agree: { bn: 'সহমত', en: 'Agree' },
+  disagree: { bn: 'অসম্মত', en: 'Disagree' },
+  reply: { bn: 'রিপ্লাই', en: 'Reply' },
+  filter_local_only: { bn: 'শুধুমাত্র স্থানীয়', en: 'Local Only' },
+  filter_expert_only: { bn: 'শুধুমাত্র বিশেষজ্ঞ', en: 'Experts Only' },
+  
+  // Badges & Impact
+  badge_engineer: { bn: 'প্রকৌশলী', en: 'Engineer' },
+  badge_doctor: { bn: 'ডাক্তার', en: 'Doctor' },
+  badge_lawyer: { bn: 'আইনজীবী', en: 'Lawyer' },
+  badge_accountant: { bn: 'অ্যাকাউন্ট্যান্ট', en: 'Accountant' },
+  verified_area: { bn: 'এই এলাকায় যাচাইকৃত', en: 'Verified in this area' },
+  impact_weight: { bn: 'বর্তমান প্রভাব ওজন', en: 'Current Impact Weight' },
+  verification_tooltip: { bn: 'এই তথ্য ভেরিফিকেশনের মাধ্যমে নিশ্চিত করা হয়েছে', en: 'This information has been confirmed via verification' },
 
+  // Evidence Upload
+  dragDrop: { bn: 'ছবি বা ভিডিও এখানে ড্রপ করুন', en: 'Drop photos or videos here' },
+  addDesc: { bn: 'বিবরণ যোগ করুন...', en: 'Add a description...' },
+  submitEvidence: { bn: 'প্রমাণ জমা দিন', en: 'Submit Evidence' },
+  
+  // Timeline events
+  event_created: { bn: 'রিপোর্ট তৈরি হয়েছে', en: 'Report Created' },
+  event_ai_check: { bn: 'AI যাচাইকরণ সম্পন্ন', en: 'AI Verification Complete' },
+  event_evidence: { bn: 'নতুন প্রমাণ যুক্ত হয়েছে', en: 'New Evidence Added' },
+  event_review: { bn: 'মডারেটর রিভিউ', en: 'Moderator Review' },
+  
   // Influence Monitoring Panel
   influencePanel: { bn: 'ইনফ্লুয়েন্স মনিটরিং প্যানেল', en: 'Influence Monitoring Panel' },
   risk_high: { bn: 'উচ্চ ঝুঁকি', en: 'High Risk' },
@@ -151,6 +186,19 @@ export const TRANSLATIONS: TranslationDictionary = {
   riskFactor: { bn: 'প্রধান ঝুঁকি', en: 'Top Risk Factor' },
   solvedCases: { bn: 'মীমাংসিত কেস', en: 'Solved Cases' },
   districtInsights: { bn: 'জেলা ভিত্তিক তথ্য', en: 'District Insights' },
+  rank: { bn: 'র‍্যাংক', en: 'Rank' },
+  district: { bn: 'জেলা', en: 'District' },
+  score: { bn: 'স্কোর', en: 'Score' },
+  volunteerism: { bn: 'স্বেচ্ছাসেবী হার', en: 'Volunteerism' },
+  resolutionTime: { bn: 'সমাধানের সময়', en: 'Resolution Time' },
+  fairnessPerception: { bn: 'ন্যায্যতা ধারণা', en: 'Fairness Perception' },
+  civicHealth: { bn: 'নাগরিক সুস্থতা', en: 'Civic Health' },
+  communitySolidarity: { bn: 'কমিউনিটি সংহতি', en: 'Community Solidarity' },
+  transparency: { bn: 'স্বচ্ছতা', en: 'Transparency' },
+  publicTrust: { bn: 'জনগণের আস্থা', en: 'Public Trust' },
+  lowestRanked: { bn: 'সর্বনিম্ন অবস্থান', en: 'Lowest Ranked' },
+  highestRanked: { bn: 'শীর্ষ অবস্থান', en: 'Highest Ranked' },
+  days: { bn: 'দিন', en: 'days' },
 
   // Hospital Monitor
   hospitalTitle: { bn: 'হাসপাতাল সেবা মনিটর', en: 'Hospital Service Monitor' },

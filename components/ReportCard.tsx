@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from './GlassCard';
 import { 
-  LineChart, Line, XAxis, Tooltip as RechartsTooltip, ResponsiveContainer, AreaChart, Area
+  AreaChart, Area, XAxis, Tooltip as RechartsTooltip, ResponsiveContainer
 } from 'recharts';
 import { 
   MapPin, 
@@ -17,12 +17,24 @@ import {
   FileText,
   PlayCircle,
   ThumbsUp,
+  ThumbsDown,
   AlertOctagon,
-  MoreHorizontal,
   Activity,
   ShieldAlert,
   BrainCircuit,
-  Map as MapIcon
+  Map as MapIcon,
+  UserCheck,
+  MessageSquare,
+  FileUp,
+  History,
+  MoreHorizontal,
+  CornerDownRight,
+  Filter,
+  Send,
+  Hammer,
+  Calculator,
+  Scale,
+  Stethoscope
 } from 'lucide-react';
 
 export interface InfluenceData {
@@ -56,12 +68,97 @@ interface ReportCardProps {
   report: ReportData;
 }
 
+// Mock User Stats for Weight Calculation
+const USER_STATS = {
+  trustScore: 78, // 78%
+  areaFactor: 1.2, // Local resident
+  accountAgeFactor: 1.05 // Old account
+};
+
+type Profession = 'engineer' | 'doctor' | 'lawyer' | 'accountant' | null;
+
+interface Comment {
+  id: number;
+  author: string;
+  trustScore: number;
+  isLocal: boolean;
+  content: string;
+  time: string;
+  agrees: number;
+  disagrees: number;
+  replyTo?: string;
+  profession?: Profession;
+  weightImpact: number;
+}
+
+const MOCK_COMMENTS: Comment[] = [
+  { 
+    id: 1, 
+    author: 'Engr. Rahman', 
+    trustScore: 92, 
+    isLocal: true, 
+    content: 'আমি এই রাস্তা দিয়ে প্রতিদিন যাই। বিটুমিনের লেয়ার ঠিকমতো দেওয়া হয়নি, তাই এই অবস্থা।', 
+    time: '1 hr ago', 
+    agrees: 12, 
+    disagrees: 1, 
+    profession: 'engineer',
+    weightImpact: 1.5
+  },
+  { 
+    id: 2, 
+    author: 'User_902', 
+    trustScore: 65, 
+    isLocal: false, 
+    content: 'ছবিটা কি আজকের? গত মাসেও এমন দেখেছিলাম।', 
+    time: '2 hrs ago', 
+    agrees: 3, 
+    disagrees: 5,
+    weightImpact: 0.8
+  },
+  {
+    id: 3,
+    author: 'Adv. Hasan',
+    trustScore: 88,
+    isLocal: true,
+    content: 'টেন্ডার প্রক্রিয়ায় কোনো গাফিলতি ছিল কিনা তা খতিয়ে দেখা দরকার।',
+    time: '3 hrs ago',
+    agrees: 8,
+    disagrees: 0,
+    profession: 'lawyer',
+    weightImpact: 1.35
+  }
+];
+
+const MOCK_TIMELINE = [
+  { id: 1, title: 'event_created', time: '2 days ago', icon: FileText, color: 'text-blue-500' },
+  { id: 2, title: 'event_ai_check', time: '2 days ago', icon: BrainCircuit, color: 'text-purple-500' },
+  { id: 3, title: 'event_evidence', time: '1 day ago', icon: FileUp, color: 'text-amber-500' },
+  { id: 4, title: 'event_review', time: '5 hours ago', icon: ShieldAlert, color: 'text-emerald-500' },
+];
+
 export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
   const { t, language } = useApp();
   const [isExpanded, setIsExpanded] = useState(false);
   const [showInfluence, setShowInfluence] = useState(false);
+  const [activeTab, setActiveTab] = useState<'discussion' | 'evidence' | 'timeline'>('discussion');
 
-  // Helper for Truth Score Color
+  // Voting State
+  const [voteState, setVoteState] = useState<'none' | 'supported' | 'doubted'>('none');
+  const [weightedScore, setWeightedScore] = useState(report.weightedSupport);
+  const [rawSupportCount, setRawSupportCount] = useState(Math.floor(report.weightedSupport * 0.85));
+  const [showToast, setShowToast] = useState(false);
+  const [animateScore, setAnimateScore] = useState(false);
+
+  // Comments State
+  const [comments, setComments] = useState(MOCK_COMMENTS);
+  const [sortMode, setSortMode] = useState<'trusted' | 'recent'>('trusted');
+  const [showLocalOnly, setShowLocalOnly] = useState(false);
+  const [showExpertOnly, setShowExpertOnly] = useState(false);
+
+  // Calculate User Weight
+  const userWeight = (USER_STATS.trustScore / 100) * USER_STATS.areaFactor * USER_STATS.accountAgeFactor;
+  const formattedWeight = userWeight.toFixed(2);
+
   const getScoreColor = (score: number) => {
     if (score <= 40) return 'text-red-500 bg-red-500';
     if (score <= 70) return 'text-amber-500 bg-amber-500';
@@ -83,6 +180,38 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
     }
   };
 
+  const handleVote = (type: 'supported' | 'doubted') => {
+    if (voteState !== 'none') return;
+    setVoteState(type);
+    if (type === 'supported') {
+      setAnimateScore(true);
+      setWeightedScore(prev => prev + userWeight);
+      setRawSupportCount(prev => prev + 1);
+      setTimeout(() => setAnimateScore(false), 500);
+    }
+    setShowToast(true);
+    setTimeout(() => setShowToast(false), 3000);
+  };
+
+  const handleCommentVote = (id: number, type: 'agree' | 'disagree') => {
+    setComments(prev => prev.map(c => {
+      if (c.id === id) {
+        return type === 'agree' ? { ...c, agrees: c.agrees + 1 } : { ...c, disagrees: c.disagrees + 1 };
+      }
+      return c;
+    }));
+  };
+
+  const getBadgeInfo = (profession: Profession) => {
+    switch (profession) {
+      case 'engineer': return { icon: Hammer, color: 'bg-indigo-100 text-indigo-700 dark:bg-indigo-900/40 dark:text-indigo-300', label: 'badge_engineer' };
+      case 'doctor': return { icon: Stethoscope, color: 'bg-rose-100 text-rose-700 dark:bg-rose-900/40 dark:text-rose-300', label: 'badge_doctor' };
+      case 'lawyer': return { icon: Scale, color: 'bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300', label: 'badge_lawyer' };
+      case 'accountant': return { icon: Calculator, color: 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300', label: 'badge_accountant' };
+      default: return null;
+    }
+  };
+
   const CustomTooltip = ({ active, payload, label }: any) => {
     if (active && payload && payload.length) {
       const data = payload[0].payload;
@@ -101,8 +230,223 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
     return null;
   };
 
+  // --- RENDER TABS ---
+  
+  const renderDiscussion = () => {
+    let filteredComments = comments;
+    if (showLocalOnly) filteredComments = filteredComments.filter(c => c.isLocal);
+    if (showExpertOnly) filteredComments = filteredComments.filter(c => c.profession);
+
+    filteredComments.sort((a, b) => sortMode === 'trusted' ? b.trustScore - a.trustScore : 0);
+
+    return (
+    <div className="space-y-4 animate-fade-in">
+      {/* Discussion Controls */}
+      <div className="flex flex-col gap-3 pb-3 border-b border-slate-100 dark:border-slate-800">
+        <div className="flex justify-between items-center">
+          <span className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider">{filteredComments.length} Comments</span>
+          <button 
+            onClick={() => setSortMode(prev => prev === 'trusted' ? 'recent' : 'trusted')}
+            className="flex items-center gap-1 text-xs font-bold text-emerald-600 dark:text-emerald-400 hover:underline"
+          >
+            <Filter size={12} /> {t(`sort_${sortMode}`)}
+          </button>
+        </div>
+        
+        {/* Filters */}
+        <div className="flex gap-4">
+          <label className="flex items-center gap-2 cursor-pointer group">
+            <input 
+              type="checkbox" 
+              checked={showLocalOnly}
+              onChange={(e) => setShowLocalOnly(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 transition-colors"
+            />
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-400 group-hover:text-emerald-600 transition-colors">
+              {t('filter_local_only')}
+            </span>
+          </label>
+          <label className="flex items-center gap-2 cursor-pointer group">
+            <input 
+              type="checkbox" 
+              checked={showExpertOnly}
+              onChange={(e) => setShowExpertOnly(e.target.checked)}
+              className="w-4 h-4 rounded border-slate-300 text-emerald-600 focus:ring-emerald-500 transition-colors"
+            />
+            <span className="text-xs font-medium text-slate-600 dark:text-slate-400 group-hover:text-emerald-600 transition-colors">
+              {t('filter_expert_only')}
+            </span>
+          </label>
+        </div>
+      </div>
+
+      {/* Comment List */}
+      <div className="space-y-4">
+        {filteredComments.map((comment) => {
+          const badge = comment.profession ? getBadgeInfo(comment.profession) : null;
+          
+          return (
+            <div key={comment.id} className="flex gap-3 p-3 bg-slate-50 dark:bg-slate-800/40 rounded-xl border border-transparent hover:border-slate-200 dark:hover:border-slate-700 transition-colors">
+              <div className="flex flex-col items-center gap-2">
+                <div className={`w-9 h-9 rounded-full flex items-center justify-center font-bold text-xs shadow-sm ${comment.trustScore > 80 ? 'bg-emerald-100 text-emerald-700' : 'bg-slate-200 text-slate-600'}`}>
+                  {comment.trustScore}%
+                </div>
+              </div>
+              
+              <div className="flex-1">
+                <div className="flex flex-wrap items-center gap-2 mb-1">
+                  <span className="text-sm font-bold text-slate-800 dark:text-slate-200">{comment.author}</span>
+                  
+                  {/* Profession Badge */}
+                  {badge && (
+                    <div className={`flex items-center gap-1 px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wide cursor-help ${badge.color}`} title={t('verification_tooltip')}>
+                      <badge.icon size={10} />
+                      {t(badge.label)}
+                    </div>
+                  )}
+
+                  {/* Local Resident Badge */}
+                  {comment.isLocal && (
+                    <div className="flex items-center gap-1 px-2 py-0.5 bg-blue-100 dark:bg-blue-900/40 text-blue-700 dark:text-blue-300 text-[10px] rounded-full font-bold uppercase cursor-help" title={t('verification_tooltip')}>
+                      <MapPin size={10} />
+                      {t('local_resident')}
+                    </div>
+                  )}
+
+                  <span className="text-[10px] text-slate-400 ml-auto">{comment.time}</span>
+                </div>
+
+                {/* Sub-header Stats */}
+                <div className="flex items-center gap-3 mb-2">
+                   <div className="flex items-center gap-1 text-[10px] font-medium text-slate-500 dark:text-slate-400">
+                     <Activity size={10} />
+                     {t('impact_weight')}: <span className="text-emerald-600 dark:text-emerald-400 font-bold">{comment.weightImpact}x</span>
+                   </div>
+                   {comment.isLocal && (
+                     <div className="flex items-center gap-1 text-[10px] font-medium text-blue-600 dark:text-blue-400 bg-blue-50 dark:bg-blue-900/20 px-1.5 py-0.5 rounded border border-blue-100 dark:border-blue-800">
+                        <CheckCircle2 size={10} />
+                        {t('verified_area')}
+                     </div>
+                   )}
+                </div>
+
+                <p className="text-sm text-slate-600 dark:text-slate-300 leading-relaxed mb-3">
+                  {comment.content}
+                </p>
+                
+                <div className="flex items-center gap-4">
+                  <button 
+                    onClick={() => handleCommentVote(comment.id, 'agree')}
+                    className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-emerald-600 transition-colors"
+                  >
+                    <ThumbsUp size={12} /> {comment.agrees} <span className="hidden sm:inline">{t('agree')}</span>
+                  </button>
+                  <button 
+                    onClick={() => handleCommentVote(comment.id, 'disagree')}
+                    className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-red-500 transition-colors"
+                  >
+                    <ThumbsDown size={12} /> {comment.disagrees} <span className="hidden sm:inline">{t('disagree')}</span>
+                  </button>
+                  <button className="flex items-center gap-1 text-xs font-bold text-slate-400 hover:text-blue-500 transition-colors ml-auto">
+                     <CornerDownRight size={12} /> {t('reply')}
+                  </button>
+                </div>
+              </div>
+            </div>
+          );
+        })}
+      </div>
+    </div>
+  )};
+
+  const renderEvidence = () => (
+    <div className="space-y-6 animate-fade-in">
+      {/* Upload Area */}
+      <div className="border-2 border-dashed border-slate-300 dark:border-slate-700 rounded-xl p-6 flex flex-col items-center justify-center text-center hover:bg-slate-50 dark:hover:bg-slate-800/50 transition-colors cursor-pointer group">
+        <div className="p-3 bg-slate-100 dark:bg-slate-800 rounded-full mb-3 text-slate-400 group-hover:text-emerald-500 transition-colors">
+          <FileUp size={24} />
+        </div>
+        <p className="text-sm font-bold text-slate-700 dark:text-slate-300 mb-1">{t('dragDrop')}</p>
+        <p className="text-xs text-slate-400 mb-4">JPG, PNG, MP4 (Max 10MB)</p>
+        
+        <div className="w-full max-w-xs space-y-2">
+          <input 
+            type="text" 
+            placeholder={t('addDesc')} 
+            className="w-full px-3 py-2 bg-white dark:bg-slate-900 border border-slate-200 dark:border-slate-700 rounded-lg text-xs outline-none focus:ring-2 focus:ring-emerald-500"
+          />
+          <button className="w-full py-2 bg-emerald-600 hover:bg-emerald-700 text-white font-bold text-xs rounded-lg transition-colors">
+            {t('submitEvidence')}
+          </button>
+        </div>
+      </div>
+
+      {/* Existing Evidence List */}
+      <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+        {report.evidence.map((item, idx) => (
+          <div key={idx} className="relative group rounded-lg overflow-hidden border border-slate-200 dark:border-slate-700 aspect-video bg-slate-100 dark:bg-slate-800">
+             {item.type === 'image' && <img src={item.url} alt="proof" className="w-full h-full object-cover" />}
+             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                <button className="p-2 bg-white/20 backdrop-blur rounded-full text-white hover:bg-white/40">
+                  <MoreHorizontal size={16} />
+                </button>
+             </div>
+             <div className="absolute top-2 left-2 px-1.5 py-0.5 bg-black/60 backdrop-blur rounded text-[9px] font-bold text-white uppercase flex items-center gap-1">
+               {item.type === 'image' ? <ImageIcon size={10} /> : <PlayCircle size={10} />}
+               {item.type}
+             </div>
+             {/* Verified Badge Placeholder */}
+             <div className="absolute bottom-2 right-2 p-1 bg-emerald-500 text-white rounded-full shadow-sm" title="Verified by AI">
+               <CheckCircle2 size={10} />
+             </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
+  const renderTimeline = () => (
+    <div className="py-2 pl-2 animate-fade-in">
+      <div className="relative border-l-2 border-slate-200 dark:border-slate-800 ml-3 space-y-8">
+        {MOCK_TIMELINE.map((event, idx) => (
+          <div key={event.id} className="relative pl-6">
+            <div className={`absolute -left-[9px] top-0 w-4 h-4 rounded-full border-2 border-white dark:border-slate-900 bg-white dark:bg-slate-900 flex items-center justify-center`}>
+              <div className={`w-2 h-2 rounded-full ${idx === 0 ? 'bg-emerald-500 animate-pulse' : 'bg-slate-300 dark:bg-slate-700'}`}></div>
+            </div>
+            
+            <div className="flex items-start justify-between">
+              <div>
+                <h4 className="text-sm font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
+                  <event.icon size={14} className={event.color} />
+                  {t(event.title)}
+                </h4>
+                <p className="text-xs text-slate-500 dark:text-slate-400 mt-0.5">{event.time}</p>
+              </div>
+              {idx === 1 && (
+                <span className="text-xs font-bold text-emerald-600 dark:text-emerald-400 bg-emerald-50 dark:bg-emerald-900/30 px-2 py-0.5 rounded">
+                  88% Match
+                </span>
+              )}
+            </div>
+          </div>
+        ))}
+      </div>
+    </div>
+  );
+
   return (
-    <GlassCard className="transition-all duration-300 hover:shadow-xl">
+    <GlassCard className="transition-all duration-300 hover:shadow-xl relative overflow-hidden">
+      
+      {/* Toast Notification */}
+      {showToast && (
+        <div className="absolute top-4 left-1/2 -translate-x-1/2 z-20 animate-fade-in-down">
+          <div className="bg-slate-800 text-white px-4 py-2 rounded-full text-xs font-bold shadow-xl flex items-center gap-2">
+            <CheckCircle2 size={14} className="text-emerald-400" />
+            {t('iFixedIt') === 'I Fixed It' ? 'Opinion Recorded' : 'আপনার মতামত গ্রহণ করা হয়েছে'}
+          </div>
+        </div>
+      )}
+
       {/* Header */}
       <div className="flex justify-between items-start mb-4">
         <div className="flex gap-3">
@@ -200,7 +544,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
         </div>
       </div>
 
-      {/* Influence Monitoring Panel (New Section) */}
+      {/* Influence Monitoring Panel */}
       {report.influenceAnalysis && (
         <div className="mb-5 rounded-xl overflow-hidden border border-slate-200 dark:border-slate-700/60">
           <button 
@@ -217,7 +561,6 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
           <div className={`bg-slate-50 dark:bg-slate-900/40 transition-all duration-500 ease-in-out overflow-hidden ${showInfluence ? 'max-h-[500px] opacity-100' : 'max-h-0 opacity-0'}`}>
             <div className="p-4 space-y-4">
               
-              {/* Risk Badge */}
               <div className={`flex items-start gap-3 p-3 rounded-lg border ${getRiskColor(report.influenceAnalysis.riskLevel)}`}>
                 <ShieldAlert size={18} className="shrink-0 mt-0.5" />
                 <div>
@@ -228,9 +571,7 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
                 </div>
               </div>
 
-              {/* Charts & Map Grid */}
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                {/* Timeline */}
                 <div className="bg-white dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm">
                   <h5 className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-2">{t('voteSpike')}</h5>
                   <div className="h-24 w-full">
@@ -259,27 +600,20 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
                   </div>
                 </div>
 
-                {/* Geo Cluster Placeholder */}
                 <div className="bg-white dark:bg-slate-800/50 p-3 rounded-xl border border-slate-100 dark:border-slate-700/50 shadow-sm relative overflow-hidden group">
                    <h5 className="text-[10px] font-bold text-slate-500 dark:text-slate-400 uppercase mb-2 flex items-center gap-1">
                      <MapIcon size={12} /> {t('geoCluster')}
                    </h5>
                    <div className="h-24 w-full flex items-center justify-center relative bg-slate-100 dark:bg-slate-900/50 rounded-lg">
-                      {/* Simple SVG Map Placeholder */}
                       <svg viewBox="0 0 100 100" className="w-full h-full text-slate-300 dark:text-slate-700 fill-current p-2">
                         <path d="M40,20 Q60,10 80,30 T60,80 Q40,90 20,70 T40,20 Z" />
                       </svg>
-                      {/* Heat dots */}
                       <div className="absolute top-1/3 left-1/3 w-2 h-2 rounded-full bg-red-500/60 animate-ping"></div>
                       <div className="absolute top-1/3 left-1/3 w-2 h-2 rounded-full bg-red-500"></div>
-                      
-                      <div className="absolute bottom-1/3 right-1/3 w-1.5 h-1.5 rounded-full bg-amber-500/60 animate-ping delay-300"></div>
-                      <div className="absolute bottom-1/3 right-1/3 w-1.5 h-1.5 rounded-full bg-amber-500"></div>
                    </div>
                 </div>
               </div>
 
-              {/* AI Explanation Box */}
               <div className="flex gap-3 p-3 bg-indigo-50 dark:bg-indigo-900/20 rounded-lg border border-indigo-100 dark:border-indigo-800/30">
                 <BrainCircuit size={18} className="text-indigo-600 dark:text-indigo-400 shrink-0 mt-0.5" />
                 <div>
@@ -288,52 +622,104 @@ export const ReportCard: React.FC<ReportCardProps> = ({ report }) => {
                    </p>
                 </div>
               </div>
-              
-              <div className="text-[10px] text-center text-slate-400 italic">
-                {t('transparencyNote')}
-              </div>
-
             </div>
           </div>
         </div>
       )}
 
-      {/* Evidence Preview - Only visible when expanded or if explicitly designed to show always. Let's show always but small. */}
-      {report.evidence.length > 0 && (
-        <div className="mb-5">
-           <h4 className="text-xs font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-2">{t('evidence')}</h4>
-           <div className="flex gap-2 overflow-x-auto pb-2 scrollbar-thin scrollbar-thumb-slate-200 dark:scrollbar-thumb-slate-700">
-             {report.evidence.map((item, idx) => (
-               <div key={idx} className="flex-shrink-0 w-16 h-16 rounded-lg bg-slate-100 dark:bg-slate-800 border border-slate-200 dark:border-slate-700 flex items-center justify-center cursor-pointer hover:border-emerald-500 transition-colors relative group overflow-hidden">
-                  {item.type === 'image' && <ImageIcon size={20} className="text-slate-400" />}
-                  {item.type === 'video' && <PlayCircle size={20} className="text-slate-400" />}
-                  {item.type === 'doc' && <FileText size={20} className="text-slate-400" />}
-                  {/* Mock Image Content */}
-                  {item.type === 'image' && (
-                    <img src={item.url} alt="evidence" className="absolute inset-0 w-full h-full object-cover opacity-60 group-hover:opacity-100 transition-opacity" />
-                  )}
-               </div>
-             ))}
-           </div>
-        </div>
-      )}
-
-      {/* Footer / Actions */}
-      <div className="flex items-center justify-between pt-4 border-t border-slate-100 dark:border-slate-800">
-        <div className="flex flex-col">
+      {/* Interactive Footer (Support System) */}
+      <div className="flex items-center justify-between py-4 border-t border-slate-100 dark:border-slate-800">
+        
+        {/* Support Score Metrics */}
+        <div className="flex flex-col group relative cursor-help">
           <span className="text-[10px] text-slate-400 font-medium uppercase">{t('weightedSupport')}</span>
-          <span className="text-xl font-bold text-slate-800 dark:text-slate-100">{report.weightedSupport}</span>
+          <div className="flex items-end gap-1.5">
+             <span className={`text-xl font-bold text-slate-800 dark:text-slate-100 transition-all duration-500 ${animateScore ? 'scale-110 text-emerald-500' : ''}`}>
+               {weightedScore.toLocaleString(undefined, { maximumFractionDigits: 1 })}
+             </span>
+             <span className="text-xs text-slate-400 mb-1">({rawSupportCount} raw)</span>
+          </div>
+
+          {/* Weight Tooltip */}
+          <div className="absolute bottom-full left-0 mb-2 w-48 p-2 bg-slate-900 text-white text-[10px] rounded-lg opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none z-10 shadow-lg border border-slate-700">
+            <div className="flex items-center gap-1 mb-1 text-emerald-400 font-bold border-b border-slate-700 pb-1">
+              <UserCheck size={10} /> Your Weight: {formattedWeight}
+            </div>
+            <div className="space-y-0.5 opacity-80">
+              <p>Trust Score: {USER_STATS.trustScore}%</p>
+              <p>Area Factor: {USER_STATS.areaFactor}x</p>
+              <p>Account Age: {USER_STATS.accountAgeFactor}x</p>
+            </div>
+            <div className="absolute top-full left-4 border-4 border-transparent border-t-slate-900"></div>
+          </div>
         </div>
 
+        {/* Action Buttons */}
         <div className="flex gap-2">
-          <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 transition-colors text-xs font-bold">
-            <ThumbsUp size={14} />
+          <button 
+            onClick={() => handleVote('supported')}
+            disabled={voteState !== 'none'}
+            className={`
+              flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-300
+              ${voteState === 'supported' 
+                ? 'bg-emerald-500 text-white shadow-lg shadow-emerald-500/30 ring-2 ring-emerald-500 ring-offset-2 dark:ring-offset-slate-900' 
+                : voteState === 'none' 
+                  ? 'bg-emerald-50 dark:bg-emerald-900/20 text-emerald-600 dark:text-emerald-400 hover:bg-emerald-100 dark:hover:bg-emerald-900/40 hover:scale-105'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-400 opacity-50 cursor-not-allowed'
+              }
+            `}
+          >
+            <ThumbsUp size={14} className={voteState === 'supported' ? 'fill-current' : ''} />
             {t('support')}
           </button>
-          <button className="flex items-center gap-1.5 px-3 py-2 rounded-lg bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 transition-colors text-xs font-bold">
+          
+          <button 
+            onClick={() => handleVote('doubted')}
+            disabled={voteState !== 'none'}
+            className={`
+              flex items-center gap-1.5 px-3 py-2 rounded-lg text-xs font-bold transition-all duration-300
+              ${voteState === 'doubted'
+                ? 'bg-amber-500 text-white shadow-lg shadow-amber-500/30 ring-2 ring-amber-500 ring-offset-2 dark:ring-offset-slate-900'
+                : voteState === 'none'
+                  ? 'bg-amber-50 dark:bg-amber-900/20 text-amber-600 dark:text-amber-400 hover:bg-amber-100 dark:hover:bg-amber-900/40 hover:scale-105'
+                  : 'bg-slate-100 dark:bg-slate-800 text-slate-400 opacity-50 cursor-not-allowed'
+              }
+            `}
+          >
             <AlertOctagon size={14} />
             {t('doubt')}
           </button>
+        </div>
+      </div>
+
+      {/* NEW: Investigation Tabs Area */}
+      <div className="mt-2">
+        <div className="flex border-b border-slate-100 dark:border-slate-800 mb-4">
+           {[
+             { id: 'discussion', icon: MessageSquare, label: 'tab_discussion' },
+             { id: 'evidence', icon: FileUp, label: 'tab_evidence' },
+             { id: 'timeline', icon: History, label: 'tab_timeline' }
+           ].map((tab) => (
+             <button
+               key={tab.id}
+               onClick={() => setActiveTab(tab.id as any)}
+               className={`flex items-center gap-2 px-4 py-3 text-sm font-bold border-b-2 transition-colors
+                 ${activeTab === tab.id 
+                   ? 'border-emerald-500 text-emerald-600 dark:text-emerald-400' 
+                   : 'border-transparent text-slate-500 hover:text-slate-800 dark:text-slate-400 dark:hover:text-slate-200'
+                 }
+               `}
+             >
+               <tab.icon size={16} />
+               {t(tab.label)}
+             </button>
+           ))}
+        </div>
+
+        <div className="min-h-[200px]">
+          {activeTab === 'discussion' && renderDiscussion()}
+          {activeTab === 'evidence' && renderEvidence()}
+          {activeTab === 'timeline' && renderTimeline()}
         </div>
       </div>
     </GlassCard>
