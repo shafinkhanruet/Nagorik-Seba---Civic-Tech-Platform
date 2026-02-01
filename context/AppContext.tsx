@@ -1,142 +1,141 @@
+
 import React, { createContext, useContext, useState, useEffect, ReactNode } from 'react';
-import { Language, Theme, Role, User } from '../types';
+import { User, Role } from '../types';
+import { mockApi } from '../services/mockApi';
 import { TRANSLATIONS } from '../constants';
 
 interface AppContextType {
-  language: Language;
-  toggleLanguage: () => void;
-  theme: Theme;
-  toggleTheme: () => void;
   user: User | null;
-  role: Role; // Derived from user or default to citizen
-  login: (userData: User) => void;
+  isLoading: boolean;
+  crisisMode: boolean;
+  login: (identifier: string | any) => Promise<void>;
+  verifyOtp: (otp: string) => Promise<void>;
   logout: () => void;
-  extendSession: () => void; // New function
-  timeLeft: number; // New state
-  setRole: (role: Role) => void; // Dev helper
+  setCrisisMode: (active: boolean) => void;
+  // Added properties
+  language: 'bn' | 'en';
+  toggleLanguage: () => void;
+  theme: 'light' | 'dark';
+  toggleTheme: () => void;
   t: (key: string) => string;
+  role: Role;
+  setRole: (role: Role) => void;
+  timeLeft: number;
+  extendSession: () => void;
 }
 
 const AppContext = createContext<AppContextType | undefined>(undefined);
 
 export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
-  const [language, setLanguage] = useState<Language>('bn');
-  const [theme, setTheme] = useState<Theme>('light');
   const [user, setUser] = useState<User | null>(null);
-  const [timeLeft, setTimeLeft] = useState<number>(Infinity);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [crisisMode, setCrisisMode] = useState<boolean>(false);
+  
+  // New States
+  const [language, setLanguage] = useState<'bn' | 'en'>('bn');
+  const [theme, setTheme] = useState<'light' | 'dark'>('light');
+  const [role, setRole] = useState<Role>('citizen');
+  const [timeLeft, setTimeLeft] = useState<number>(1800000); // 30 mins
 
-  // Load settings and auth from local storage
   useEffect(() => {
-    const savedTheme = localStorage.getItem('theme') as Theme;
-    if (savedTheme) {
-      setTheme(savedTheme);
-    } else if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
-      setTheme('dark');
+    // Check for persisted session
+    const storedUser = localStorage.getItem('user');
+    if (storedUser) {
+      const parsedUser = JSON.parse(storedUser);
+      setUser(parsedUser);
+      setRole(parsedUser.role);
     }
+    
+    // Check system status
+    mockApi.admin.getCrisisStatus().then(status => setCrisisMode(status.active));
+    setIsLoading(false);
 
-    const savedUserStr = localStorage.getItem('auth_user');
-    if (savedUserStr) {
-      try {
-        const savedUser = JSON.parse(savedUserStr);
-        // Initial expiry check
-        if (savedUser.expiresAt > Date.now()) {
-          setUser(savedUser);
-        } else {
-          localStorage.removeItem('auth_user');
-        }
-      } catch (e) {
-        console.error("Failed to parse auth user", e);
-      }
+    // Theme init
+    if (window.matchMedia('(prefers-color-scheme: dark)').matches) {
+      setTheme('dark');
+      document.documentElement.classList.add('dark');
     }
   }, []);
 
-  // Session Timer Logic
+  // Timer Effect
   useEffect(() => {
-    if (!user) {
-      setTimeLeft(Infinity);
-      return;
-    }
-
+    if (!user) return;
     const interval = setInterval(() => {
-      const remaining = user.expiresAt - Date.now();
-      setTimeLeft(remaining);
-
-      if (remaining <= 0) {
-        logout();
-      }
+      setTimeLeft(prev => Math.max(0, prev - 1000));
     }, 1000);
-
     return () => clearInterval(interval);
   }, [user]);
 
-  // Apply theme class
-  useEffect(() => {
-    const root = window.document.documentElement;
-    if (theme === 'dark') {
-      root.classList.add('dark');
-    } else {
-      root.classList.remove('dark');
+  const login = async (identifier: string | any) => {
+    // Handle object based login (admin bypass)
+    if (typeof identifier === 'object' && identifier.id) {
+        setUser(identifier);
+        setRole(identifier.role);
+        localStorage.setItem('user', JSON.stringify(identifier));
+        localStorage.setItem('auth_token', identifier.token || 'mock-token');
+        return;
     }
-    localStorage.setItem('theme', theme);
-  }, [theme]);
+    // Normal flow
+    await mockApi.auth.login(identifier);
+  };
+
+  const verifyOtp = async (otp: string) => {
+    const { user, token } = await mockApi.auth.verifyOtp(otp);
+    setUser(user);
+    setRole(user.role);
+    localStorage.setItem('user', JSON.stringify(user));
+    localStorage.setItem('auth_token', token);
+  };
+
+  const logout = () => {
+    setUser(null);
+    localStorage.removeItem('user');
+    localStorage.removeItem('auth_token');
+    window.location.href = '/login';
+  };
 
   const toggleLanguage = () => {
     setLanguage(prev => prev === 'bn' ? 'en' : 'bn');
   };
 
   const toggleTheme = () => {
-    setTheme(prev => prev === 'light' ? 'dark' : 'light');
-  };
-
-  const login = (userData: User) => {
-    // Ensure expiresAt is set if missing (default 24h)
-    const finalUser = {
-      ...userData,
-      expiresAt: userData.expiresAt || (Date.now() + 86400000)
-    };
-    setUser(finalUser);
-    localStorage.setItem('auth_user', JSON.stringify(finalUser));
-  };
-
-  const logout = () => {
-    setUser(null);
-    localStorage.removeItem('auth_user');
-    setTimeLeft(Infinity);
-    // Force redirect to the unified login page
-    window.location.hash = '/login'; 
-  };
-
-  const extendSession = () => {
-    if (!user) return;
-    const newExpiry = Date.now() + 30 * 60 * 1000; // Add 30 minutes
-    const updatedUser = { ...user, expiresAt: newExpiry };
-    setUser(updatedUser);
-    localStorage.setItem('auth_user', JSON.stringify(updatedUser));
-    setTimeLeft(newExpiry - Date.now());
-  };
-
-  // Dev helper to switch roles quickly, updates the user object strictly for dev
-  const setRole = (role: Role) => {
-    const mockUser: User = {
-      id: 'dev-user',
-      name: 'Developer',
-      role: role,
-      token: 'mock-dev-token',
-      expiresAt: Date.now() + 86400000
-    };
-    login(mockUser);
+    setTheme(prev => {
+      const newTheme = prev === 'light' ? 'dark' : 'light';
+      if (newTheme === 'dark') document.documentElement.classList.add('dark');
+      else document.documentElement.classList.remove('dark');
+      return newTheme;
+    });
   };
 
   const t = (key: string): string => {
+    // Fallback translation if key missing
     if (!TRANSLATIONS[key]) return key;
     return TRANSLATIONS[key][language];
   };
 
-  // Default role is citizen if not logged in (for public view pages), but auth guards will block protected routes
-  const role = user?.role || 'citizen';
+  const extendSession = () => {
+    setTimeLeft(1800000);
+  };
 
   return (
-    <AppContext.Provider value={{ language, toggleLanguage, theme, toggleTheme, user, role, login, logout, extendSession, timeLeft, setRole, t }}>
+    <AppContext.Provider value={{ 
+      user, 
+      isLoading, 
+      crisisMode, 
+      login, 
+      verifyOtp, 
+      logout, 
+      setCrisisMode,
+      language,
+      toggleLanguage,
+      theme,
+      toggleTheme,
+      t,
+      role,
+      setRole,
+      timeLeft,
+      extendSession
+    }}>
       {children}
     </AppContext.Provider>
   );
@@ -144,8 +143,6 @@ export const AppProvider: React.FC<{ children: ReactNode }> = ({ children }) => 
 
 export const useApp = () => {
   const context = useContext(AppContext);
-  if (!context) {
-    throw new Error('useApp must be used within an AppProvider');
-  }
+  if (!context) throw new Error('useApp must be used within AppProvider');
   return context;
 };

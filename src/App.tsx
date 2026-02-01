@@ -1,3 +1,4 @@
+
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
@@ -6,7 +7,7 @@ import { NotificationProvider } from './context/NotificationContext';
 import { ErrorBoundary } from './components/ErrorBoundary';
 import { Loader2 } from 'lucide-react';
 
-// Pages
+// Pages - Flat Structure
 import { Login } from './pages/Login';
 import { Signup } from './pages/Signup';
 import { AdminLogin } from './pages/AdminLogin';
@@ -41,29 +42,18 @@ import { DistrictControls } from './pages/DistrictControls';
 import { CitizenLayout } from './layouts/CitizenLayout';
 import { AdminLayout } from './layouts/AdminLayout';
 
-interface ProtectedRouteProps {
-  children: React.ReactNode;
-  allowedRole?: string;
-}
-
-const ProtectedRoute: React.FC<ProtectedRouteProps> = ({ children, allowedRole }) => {
+/**
+ * Fixed: Updated children to React.ReactNode and made it optional in type to prevent 
+ * "children is missing" error when used in Route element props.
+ */
+const ProtectedRoute = ({ children, allowedRole }: { children?: React.ReactNode, allowedRole?: string }) => {
   const { user, isLoading } = useApp();
 
-  if (isLoading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900">
-        <Loader2 className="animate-spin text-emerald-500" size={32} />
-      </div>
-    );
-  }
-
-  if (!user) {
-    return <Navigate to="/login" replace />;
-  }
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
+  if (!user) return <Navigate to="/login" replace />;
   
-  // Fix: Explicitly cast user.role to string in comparisons to resolve "no overlap" type errors caused by narrowing.
   if (allowedRole && user.role !== allowedRole && (user.role as string) !== 'superadmin') {
-    if (user.role === 'admin' || user.role === 'moderator' || (user.role as string) === 'superadmin') {
+    if (user.role === 'admin' || user.role === 'moderator' || user.role === 'superadmin') {
        return allowedRole === 'admin' ? <>{children}</> : <Navigate to="/admin" replace />;
     }
     return <Navigate to="/app" replace />;
@@ -113,7 +103,7 @@ const AppRoutes = () => {
         <Route path="anomalies" element={<VoteAnomalies />} />
         <Route path="evidence" element={<EvidenceVault />} />
         <Route path="districts" element={<DistrictControls />} />
-        <Route path="bots" element={<div className="p-8 text-slate-400">Bot Activity Tracking Coming Soon</div>} />
+        <Route path="bots" element={<div>Bot Activity</div>} />
       </Route>
 
       <Route path="/" element={<Navigate to="/login" replace />} />

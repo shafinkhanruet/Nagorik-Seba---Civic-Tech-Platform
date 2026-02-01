@@ -8,9 +8,19 @@ export interface User {
   name: string;
   role: Role;
   token?: string;
-  trustScore?: number;
+  trustScore: number;
   district?: string;
+  homeLocation?: { lat: number; lng: number }; // System 18: Geo-Weighted
   expiresAt?: number;
+}
+
+// System 1: Truth Probability Engine Inputs
+export interface TruthSignals {
+  reporterTrust: number;
+  evidenceStrength: number;
+  geoMatch: number;
+  communityConsensus: number;
+  botProbability: number;
 }
 
 export interface ReportLocation {
@@ -24,7 +34,8 @@ export interface ReportLocation {
 export interface InfluenceData {
   riskLevel: 'Low' | 'Medium' | 'High';
   timelineData: { time: string; value: number; isSpike?: boolean }[];
-  explanation?: string;
+  explanation?: string; // System 22: Explainability
+  clusterId?: string; // System 2: Bot Detection
 }
 
 export interface AuthorityResponseData {
@@ -39,31 +50,33 @@ export interface Report {
   id: string;
   title: string;
   category: string;
-  categoryIcon?: any; // ReactNode not strictly serializable, keeping flexible
+  categoryIcon?: any;
   location: ReportLocation;
   description: string;
-  evidence: { type: 'image' | 'video' | 'doc'; url: string; isSensitive?: boolean }[];
-  truthScore: number;
+  evidence: { type: 'image' | 'video' | 'doc'; url: string; isSensitive?: boolean; hash?: string }[];
+  
+  // System 1 Output
+  truthScore: number; 
+  truthSignals?: TruthSignals;
+  
   status: 'pending_ai_review' | 'verified' | 'rejected' | 'review' | 'disputed';
   aiSummary?: string;
   timestamp: string;
   
-  // Extended UI Fields
   author?: string;
+  authorId?: string; 
   isAnonymous?: boolean;
   timePosted?: string;
-  aiBreakdown?: {
-    credibility: number;
-    evidenceQuality: number;
-    mediaCheck: number;
-    historyMatch: number;
-  };
+  
+  // System 2 & 4
   weightedSupport?: number;
   influenceAnalysis?: InfluenceData;
+  
   isFlagged?: boolean;
   authorityResponse?: AuthorityResponseData;
 }
 
+// System 10: Moral Impact Score
 export interface MoralMetrics {
   povertyBenefit: number;
   displacementRisk: number;
@@ -71,60 +84,79 @@ export interface MoralMetrics {
   socialJustice: number;
 }
 
+// System 5: Budget Estimation
+export interface MaterialCost {
+  item: string;
+  quantity: number;
+  marketRate: number;
+  proposedRate: number;
+}
+
+export interface BudgetAnalysis {
+  govtTotal: number;
+  aiEstimate: number;
+  deviation: number;
+  riskLevel: 'Low' | 'Medium' | 'High';
+  materials: MaterialCost[];
+}
+
 export interface ProjectProposalData {
   id: string;
   title: string;
   ministry: string;
   location: string;
-  status: 'open' | 'closed' | 'approved' | 'rejected';
+  status: 'open' | 'closed' | 'approved' | 'rejected' | 'frozen'; // System 15: Frozen
   aiSummary: string;
   budget: {
     govt: string;
     aiEstimate: string;
     risk: 'Low' | 'Medium' | 'High';
+    details?: BudgetAnalysis;
   };
   impacts: ('environment' | 'displacement' | 'social' | 'economic')[];
   approvalStats: {
-    current: number; // percentage
-    required: number; // percentage
+    current: number; 
+    required: number;
     totalVotes: number;
   };
   hasVoted?: boolean;
   moralMetrics?: MoralMetrics;
+  geoFence?: { lat: number; lng: number; radius: number }; // System 18
 }
 
-export interface Project {
-  id: string;
-  title: string;
-  budget: number;
-  spent: number;
-  status: 'planned' | 'active' | 'frozen' | 'completed';
-  description: string;
-  moralImpactScore: number;
-  deadline: string;
-}
-
-export interface AuditLog {
+// System 16: Audit Log
+export interface AuditLogEntry {
   id: string;
   actor: string;
-  role: Role;
+  role: Role | string;
   action: string;
   targetId: string;
   timestamp: string;
-  hash: string; // Immutable log hash
+  previousHash: string; // Blockchain-style linking
+  hash: string;
+  details?: string;
+  reasonCode?: string; // System 25
 }
 
+// System 6: Tender Risk
 export interface TenderNode {
   id: string;
   name: string;
-  type: 'contractor' | 'official';
+  type: 'contractor' | 'official' | 'shell';
   riskScore: number;
 }
 
 export interface TenderLink {
   source: string;
   target: string;
-  value: number; // Contract value or connection strength
+  value: number;
+  type: 'bid' | 'won' | 'related';
+}
+
+export interface TenderNetwork {
+  nodes: TenderNode[];
+  links: TenderLink[];
+  syndicateProbability: number;
 }
 
 export interface NavItem {
@@ -133,6 +165,7 @@ export interface NavItem {
   labelEn: string;
   path: string;
   icon: LucideIcon;
+  isDanger?: boolean;
 }
 
 export interface TranslationDictionary {
@@ -152,6 +185,7 @@ export interface NotificationItem {
   timestamp: string;
   read: boolean;
   link?: string;
+  riskLevel?: 'low' | 'high'; // System 21
 }
 
 export interface WatchlistItem {
@@ -168,7 +202,7 @@ export interface NotificationSettings {
   reportStatus: boolean;
 }
 
-export type RTIStatus = 'submitted' | 'acknowledged' | 'review' | 'responded' | 'closed';
+export type RTIStatus = 'submitted' | 'acknowledged' | 'review' | 'responded' | 'closed' | 'escalated'; // System 20
 
 export interface RTIRequest {
   id: string;
@@ -183,15 +217,4 @@ export interface RTIRequest {
   applicantName: string;
   trackingId: string;
   response?: string;
-}
-
-export interface AuditLogEntry {
-  id: string;
-  actor: string;
-  role: Role | string;
-  action: string;
-  targetId: string;
-  timestamp: string;
-  hash: string;
-  details?: string;
 }

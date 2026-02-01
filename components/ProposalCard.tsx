@@ -2,7 +2,8 @@
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from './GlassCard';
-import { MoralImpactPanel, MoralMetrics } from './MoralImpactPanel';
+import { MoralImpactPanel } from './MoralImpactPanel';
+import { ProjectProposalData } from '../types';
 import { 
   Building2, 
   MapPin, 
@@ -17,28 +18,6 @@ import {
   Home,
   ArrowRight
 } from 'lucide-react';
-
-export interface ProjectProposalData {
-  id: string;
-  title: string;
-  ministry: string;
-  location: string;
-  status: 'open' | 'closed' | 'approved' | 'rejected';
-  aiSummary: string;
-  budget: {
-    govt: string;
-    aiEstimate: string;
-    risk: 'Low' | 'Medium' | 'High';
-  };
-  impacts: ('environment' | 'displacement' | 'social' | 'economic')[];
-  approvalStats: {
-    current: number; // percentage
-    required: number; // percentage
-    totalVotes: number;
-  };
-  hasVoted?: boolean;
-  moralMetrics?: MoralMetrics;
-}
 
 interface ProposalCardProps {
   proposal: ProjectProposalData;

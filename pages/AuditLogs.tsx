@@ -1,8 +1,9 @@
+
 import React, { useEffect, useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { useMockApi } from '../hooks/useMockApi';
 import { GlassCard } from '../components/GlassCard';
-import { AuditLogEntry } from '../services/mockApi';
+import { AuditLogEntry } from '../types';
 import { 
   FileClock, 
   Filter, 

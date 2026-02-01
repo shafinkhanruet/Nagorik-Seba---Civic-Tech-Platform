@@ -20,9 +20,9 @@ import {
   MapPin, 
   Users, 
   Leaf, 
-  TrendingUp, 
-  ShieldAlert, 
-  Lock, 
+  TrendingUp,
+  ShieldAlert,
+  Lock,
   Loader2
 } from 'lucide-react';
 

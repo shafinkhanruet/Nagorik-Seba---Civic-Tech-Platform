@@ -1,10 +1,9 @@
-
 import React from 'react';
 import { useApp } from '../context/AppContext';
 import { GlassCard } from '../components/GlassCard';
 import { 
   BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, 
-  AreaChart, Area, CartesianGrid 
+  AreaChart, Area, CartesianGrid, Cell
 } from 'recharts';
 import { 
   TrendingUp, 
@@ -14,246 +13,226 @@ import {
   MapPin,
   Clock,
   ArrowRight,
-  ChevronRight,
-  Activity
+  Zap,
+  Activity,
+  Calendar,
+  Flame,
+  Globe
 } from 'lucide-react';
 
 const dataActivity = [
-  { name: 'Jan', reports: 40, resolved: 24 },
-  { name: 'Feb', reports: 30, resolved: 13 },
-  { name: 'Mar', reports: 20, resolved: 48 },
-  { name: 'Apr', reports: 27, resolved: 39 },
-  { name: 'May', reports: 18, resolved: 48 },
-  { name: 'Jun', reports: 23, resolved: 38 },
-  { name: 'Jul', reports: 34, resolved: 43 },
-];
-
-const dataEngagement = [
-  { name: 'Week 1', value: 400 },
-  { name: 'Week 2', value: 300 },
-  { name: 'Week 3', value: 500 },
-  { name: 'Week 4', value: 450 },
+  { name: 'জানু', reports: 40, resolved: 24 },
+  { name: 'ফেব্রু', reports: 30, resolved: 13 },
+  { name: 'মার্চ', reports: 20, resolved: 48 },
+  { name: 'এপ্রিল', reports: 27, resolved: 39 },
+  { name: 'মে', reports: 18, resolved: 48 },
+  { name: 'জুন', reports: 23, resolved: 38 },
 ];
 
 export const Dashboard: React.FC = () => {
   const { t, language } = useApp();
 
   const stats = [
-    { 
-      title: t('activeProjects'), 
-      value: '124', 
-      icon: TrendingUp, 
-      gradient: 'from-blue-500 to-indigo-600',
-      shadow: 'shadow-blue-500/30' 
-    },
-    { 
-      title: t('resolvedIssues'), 
-      value: '8,432', 
-      icon: CheckCircle2, 
-      gradient: 'from-emerald-500 to-teal-600',
-      shadow: 'shadow-emerald-500/30' 
-    },
-    { 
-      title: t('pendingReports'), 
-      value: '45', 
-      icon: AlertCircle, 
-      gradient: 'from-amber-500 to-orange-600',
-      shadow: 'shadow-amber-500/30' 
-    },
-    { 
-      title: t('citizenEngagement'), 
-      value: '92%', 
-      icon: Users, 
-      gradient: 'from-violet-500 to-purple-600',
-      shadow: 'shadow-violet-500/30' 
-    },
-  ];
-
-  const recentReports = [
-    { id: 1, title: 'রাস্তা মেরামত প্রয়োজন', location: 'ধানমন্ডি ২৭', status: 'pending', time: '২ ঘণ্টা আগে' },
-    { id: 2, title: 'স্ট্রিট লাইট নষ্ট', location: 'মিরপুর ১০', status: 'resolved', time: '৫ ঘণ্টা আগে' },
-    { id: 3, title: 'পানির লাইনে সমস্যা', location: 'উত্তরা সেক্টর ৪', status: 'processing', time: '১ দিন আগে' },
+    { label: t('activeProjects'), value: '124', icon: Zap, color: 'emerald', trend: '+12%', gradient: 'from-emerald-400 to-cyan-500' },
+    { label: t('resolvedIssues'), value: '8,432', icon: CheckCircle2, color: 'indigo', trend: '+5%', gradient: 'from-indigo-500 to-purple-600' },
+    { label: t('pendingReports'), value: '45', icon: AlertCircle, color: 'rose', trend: '-2%', gradient: 'from-rose-500 to-orange-500' },
+    { label: t('citizenEngagement'), value: '92%', icon: Users, color: 'amber', trend: '+8%', gradient: 'from-amber-400 to-yellow-600' },
   ];
 
   return (
-    <div className="space-y-8 animate-fade-in">
-      {/* Welcome Section */}
-      <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
-        <div>
-          <h1 className="text-3xl font-black text-slate-800 dark:text-slate-100 tracking-tight">
-            {t('dashboard')}
+    <div className="space-y-10 animate-fade-in py-4">
+      {/* Hero Branding / Welcome */}
+      <div className="flex flex-col md:flex-row items-center justify-between gap-8">
+        <div className="space-y-2">
+          <h1 className="text-5xl font-black text-slate-800 dark:text-white tracking-tighter leading-tight">
+            {language === 'bn' ? 'সুপ্রভাত, নাগরিক!' : 'Good Morning, Citizen!'}
           </h1>
-          <p className="text-slate-500 dark:text-slate-400 mt-2 text-lg">
-            {language === 'bn' ? 'আজকের নাগরিক সেবার সংক্ষিপ্ত বিবরণ' : 'Overview of todays civic services'}
-          </p>
+          <div className="flex items-center gap-4 text-slate-500 dark:text-slate-400 font-bold uppercase tracking-widest text-xs bg-white/40 dark:bg-white/5 w-fit px-4 py-2 rounded-full backdrop-blur-md">
+             <Calendar size={14} className="text-indigo-500" />
+             <span>{new Date().toLocaleDateString(language === 'bn' ? 'bn-BD' : 'en-US', { day: 'numeric', month: 'long', year: 'numeric' })}</span>
+             <span className="w-1.5 h-1.5 rounded-full bg-emerald-500"></span>
+             <span className="text-emerald-500 flex items-center gap-1"><Globe size={12} /> System Online</span>
+          </div>
         </div>
-        <div className="flex gap-3">
-           <button className="px-5 py-2.5 bg-emerald-600 hover:bg-emerald-500 text-white text-sm font-bold rounded-xl transition-all shadow-lg shadow-emerald-500/30 flex items-center gap-2 hover:-translate-y-0.5 active:translate-y-0">
-             <span>+</span> {language === 'bn' ? 'নতুন রিপোর্ট' : 'New Report'}
-           </button>
+        <div className="flex gap-4">
+          <button className="group px-8 py-4 bg-gradient-to-r from-emerald-500 to-cyan-500 hover:from-emerald-400 hover:to-cyan-400 text-white text-sm font-black rounded-3xl transition-all shadow-xl shadow-emerald-500/30 active:scale-95 flex items-center gap-3 uppercase tracking-widest">
+            <TrendingUp size={20} className="group-hover:scale-125 transition-transform" /> 
+            {language === 'bn' ? 'লাইভ রিপোর্ট' : 'Live Feed'}
+          </button>
         </div>
       </div>
 
-      {/* Stats Grid - Modern Gradient Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-        {stats.map((stat, idx) => (
-          <div key={idx} className="relative group">
-            <div className={`absolute inset-0 bg-gradient-to-r ${stat.gradient} rounded-2xl blur opacity-25 group-hover:opacity-40 transition-opacity duration-300`}></div>
-            <GlassCard className="relative flex items-center justify-between h-full hover:-translate-y-1 transition-transform duration-300" noPadding>
-              <div className="p-6">
-                <p className="text-sm font-bold text-slate-500 dark:text-slate-400 uppercase tracking-wider mb-1">{stat.title}</p>
-                <h3 className="text-3xl font-black text-slate-800 dark:text-slate-100">{stat.value}</h3>
+      {/* Grid Stats with Gradients */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+        {stats.map((stat, i) => (
+          <GlassCard key={i} className="group relative overflow-hidden h-full" accent={stat.color as any}>
+            <div className="flex justify-between items-start mb-6">
+              <div className={`p-4 rounded-2xl bg-gradient-to-br ${stat.gradient} text-white shadow-lg group-hover:rotate-12 transition-transform duration-500`}>
+                <stat.icon size={28} />
               </div>
-              <div className={`h-full w-20 flex items-center justify-center bg-gradient-to-br ${stat.gradient} text-white rounded-r-2xl`}>
-                <stat.icon size={28} className="drop-shadow-md" />
+              <div className="flex flex-col items-end">
+                 <span className={`text-xs font-black px-3 py-1 rounded-full bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 shadow-sm`}>
+                  {stat.trend}
+                </span>
+                <span className="text-[10px] text-slate-400 font-bold uppercase mt-1">vs Last Month</span>
               </div>
-            </GlassCard>
-          </div>
+            </div>
+            <div>
+              <p className="text-[10px] font-black text-slate-400 dark:text-slate-500 uppercase tracking-[0.25em] mb-1">{stat.label}</p>
+              <h3 className="text-4xl font-black text-slate-800 dark:text-white">{stat.value}</h3>
+            </div>
+            {/* Geometric Decoration */}
+            <div className={`absolute -bottom-10 -right-10 w-32 h-32 bg-gradient-to-br ${stat.gradient} opacity-5 rounded-full blur-2xl group-hover:opacity-10 transition-opacity`}></div>
+          </GlassCard>
         ))}
       </div>
 
-      {/* Main Content Split */}
-      <div className="grid grid-cols-1 lg:grid-cols-3 gap-8">
-        
-        {/* Chart Section */}
-        <div className="lg:col-span-2 space-y-8">
-          <GlassCard className="border-t-4 border-t-emerald-500">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-xl font-bold text-slate-800 dark:text-slate-100 flex items-center gap-2">
-                <Activity className="text-emerald-500" />
-                {t('monthlyTrend')}
-              </h3>
-              <select className="bg-slate-100 dark:bg-slate-800 border-none rounded-lg text-xs font-bold px-3 py-1.5 outline-none text-slate-600 dark:text-slate-300 cursor-pointer hover:bg-slate-200 dark:hover:bg-slate-700 transition-colors">
-                <option>Last 6 Months</option>
-                <option>Last Year</option>
-              </select>
+      <div className="grid grid-cols-1 lg:grid-cols-12 gap-8">
+        {/* Main Analytics Island */}
+        <div className="lg:col-span-8">
+          <GlassCard className="h-full min-h-[500px] flex flex-col group/chart" noPadding>
+            <div className="p-8 border-b border-white/20 dark:border-white/5 flex justify-between items-center bg-gradient-to-r from-slate-50/50 to-transparent dark:from-slate-900/50">
+              <div className="space-y-1">
+                <h3 className="text-2xl font-black text-slate-800 dark:text-white flex items-center gap-3 tracking-tighter">
+                  <Activity className="text-indigo-500 animate-pulse" size={24} />
+                  {t('monthlyTrend')}
+                </h3>
+                <p className="text-xs text-slate-500 font-bold uppercase tracking-widest opacity-60">Citizen Verification Network</p>
+              </div>
+              <div className="flex gap-4">
+                 <div className="flex items-center gap-2 bg-white/50 dark:bg-black/20 px-3 py-1.5 rounded-xl border border-white/20">
+                    <div className="w-2 h-2 rounded-full bg-emerald-500 shadow-[0_0_8px_#10b981]"></div>
+                    <span className="text-[10px] font-black text-slate-500 uppercase">Verified</span>
+                 </div>
+                 <div className="flex items-center gap-2 bg-white/50 dark:bg-black/20 px-3 py-1.5 rounded-xl border border-white/20">
+                    <div className="w-2 h-2 rounded-full bg-indigo-500 shadow-[0_0_8px_#6366f1]"></div>
+                    <span className="text-[10px] font-black text-slate-500 uppercase">Reports</span>
+                 </div>
+              </div>
             </div>
-            <div className="h-80 w-full">
+            
+            <div className="flex-1 p-8">
               <ResponsiveContainer width="100%" height="100%">
-                <AreaChart data={dataActivity}>
+                <AreaChart data={dataActivity} margin={{ top: 20, right: 10, left: -20, bottom: 0 }}>
                   <defs>
-                    <linearGradient id="colorReports" x1="0" y1="0" x2="0" y2="1">
+                    <linearGradient id="chartEmerald" x1="0" y1="0" x2="0" y2="1">
                       <stop offset="5%" stopColor="#10b981" stopOpacity={0.3}/>
                       <stop offset="95%" stopColor="#10b981" stopOpacity={0}/>
                     </linearGradient>
-                    <linearGradient id="colorResolved" x1="0" y1="0" x2="0" y2="1">
-                      <stop offset="5%" stopColor="#3b82f6" stopOpacity={0.3}/>
-                      <stop offset="95%" stopColor="#3b82f6" stopOpacity={0}/>
+                    <linearGradient id="chartIndigo" x1="0" y1="0" x2="0" y2="1">
+                      <stop offset="5%" stopColor="#6366f1" stopOpacity={0.3}/>
+                      <stop offset="95%" stopColor="#6366f1" stopOpacity={0}/>
                     </linearGradient>
                   </defs>
-                  <CartesianGrid strokeDasharray="3 3" vertical={false} stroke="#e2e8f0" opacity={0.5} />
-                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 500}} dy={10} />
-                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 500}} dx={-10} />
+                  <CartesianGrid strokeDasharray="6 6" vertical={false} stroke="#64748b" opacity={0.1} />
+                  <XAxis dataKey="name" axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 800}} dy={15} />
+                  <YAxis axisLine={false} tickLine={false} tick={{fill: '#94a3b8', fontSize: 12, fontWeight: 800}} />
                   <Tooltip 
-                    contentStyle={{ borderRadius: '12px', border: 'none', background: '#1e293b', color: '#fff', boxShadow: '0 10px 15px -3px rgba(0, 0, 0, 0.1)' }}
-                    itemStyle={{ color: '#fff' }}
+                    contentStyle={{ borderRadius: '24px', border: 'none', background: 'rgba(15, 23, 42, 0.9)', backdropFilter: 'blur(10px)', color: '#fff', boxShadow: '0 25px 50px -12px rgba(0, 0, 0, 0.5)' }}
+                    itemStyle={{ fontSize: '12px', fontWeight: '900', textTransform: 'uppercase' }}
                   />
                   <Area 
-                    type="monotone" 
-                    dataKey="reports" 
-                    stroke="#10b981" 
-                    strokeWidth={3}
-                    fillOpacity={1} 
-                    fill="url(#colorReports)" 
-                    name="Reports"
+                    type="monotone" dataKey="reports" stroke="#6366f1" strokeWidth={5} fillOpacity={1} fill="url(#chartIndigo)"
+                    animationDuration={2000}
                   />
                   <Area 
-                    type="monotone" 
-                    dataKey="resolved" 
-                    stroke="#3b82f6" 
-                    strokeWidth={3}
-                    fillOpacity={1} 
-                    fill="url(#colorResolved)" 
-                    name="Resolved"
+                    type="monotone" dataKey="resolved" stroke="#10b981" strokeWidth={5} fillOpacity={1} fill="url(#chartEmerald)"
+                    animationDuration={2500}
                   />
                 </AreaChart>
               </ResponsiveContainer>
             </div>
           </GlassCard>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-             <div className="relative group overflow-hidden rounded-2xl shadow-xl">
-                <div className="absolute inset-0 bg-gradient-to-br from-indigo-600 to-purple-700 transition-transform duration-500 group-hover:scale-105"></div>
-                <div className="absolute top-0 right-0 w-32 h-32 bg-white opacity-5 rounded-full -mr-10 -mt-10 blur-2xl"></div>
-                
-                <div className="relative p-6 flex flex-col h-full justify-between text-white">
-                   <div>
-                      <span className="inline-block px-2 py-1 bg-white/20 rounded text-[10px] font-bold uppercase mb-3 backdrop-blur-sm">Featured</span>
-                      <h3 className="font-bold text-xl mb-2 opacity-95 leading-tight">কমিউনিটি ইভেন্ট</h3>
-                      <p className="text-sm opacity-80 leading-relaxed font-medium">আগামী শুক্রবার ধানমন্ডি লেকে পরিচ্ছন্নতা অভিযান। অংশগ্রহন করুন এবং আপনার শহর সুন্দর রাখুন।</p>
-                   </div>
-                   <button className="mt-6 w-full py-3 bg-white/10 hover:bg-white/20 rounded-xl text-sm font-bold backdrop-blur-md transition-all border border-white/10 flex items-center justify-center gap-2">
-                      বিস্তারিত দেখুন <ArrowRight size={16} />
-                   </button>
-                </div>
-             </div>
-
-             <GlassCard>
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100 mb-6 flex items-center gap-2">
-                  <Users className="text-indigo-500" /> {t('satisfactionRate')}
-                </h3>
-                <div className="h-40 w-full">
-                  <ResponsiveContainer width="100%" height="100%">
-                    <BarChart data={dataEngagement} barSize={20}>
-                      <Bar dataKey="value" fill="#6366f1" radius={[6, 6, 0, 0]} />
-                      <XAxis dataKey="name" hide />
-                      <Tooltip 
-                        cursor={{fill: 'transparent'}}
-                        contentStyle={{ borderRadius: '8px', border: 'none', background: '#1e293b', color: '#fff' }}
-                      />
-                    </BarChart>
-                  </ResponsiveContainer>
-                </div>
-             </GlassCard>
-          </div>
         </div>
 
-        {/* Recent Activity Sidebar */}
-        <div className="lg:col-span-1">
-          <GlassCard className="h-full flex flex-col" noPadding>
-            <div className="p-6 border-b border-slate-100 dark:border-slate-800">
-              <div className="flex items-center justify-between">
-                <h3 className="text-lg font-bold text-slate-800 dark:text-slate-100">{t('recentActivity')}</h3>
-                <button className="text-xs text-emerald-600 hover:text-emerald-700 font-bold bg-emerald-50 dark:bg-emerald-900/20 px-2 py-1 rounded-lg transition-colors">
-                  সব দেখুন
-                </button>
-              </div>
+        {/* Action / Trending Sidebar */}
+        <div className="lg:col-span-4 space-y-8">
+          <GlassCard className="h-full flex flex-col bg-gradient-to-b from-indigo-500 to-purple-600 text-white border-none shadow-indigo-500/20" noPadding>
+            <div className="p-8 flex justify-between items-center">
+              <h3 className="text-xl font-black uppercase tracking-tighter flex items-center gap-3">
+                <Flame className="text-amber-300 animate-bounce" size={24} />
+                Trending Now
+              </h3>
+              <Globe size={20} className="opacity-40 animate-spin-slow" />
             </div>
             
-            <div className="p-4 space-y-3 flex-1 overflow-y-auto">
-              {recentReports.map((report) => (
-                <div key={report.id} className="group p-4 rounded-xl bg-slate-50 dark:bg-slate-800/50 hover:bg-white dark:hover:bg-slate-800 transition-all border border-transparent hover:border-slate-200 dark:hover:border-slate-700 hover:shadow-md cursor-pointer">
-                  <div className="flex justify-between items-start mb-2">
-                    <span className={`px-2.5 py-1 rounded-lg text-[10px] font-bold uppercase tracking-wider
-                      ${report.status === 'pending' ? 'bg-amber-100 text-amber-700 dark:bg-amber-900/30 dark:text-amber-400' : ''}
-                      ${report.status === 'resolved' ? 'bg-emerald-100 text-emerald-700 dark:bg-emerald-900/30 dark:text-emerald-400' : ''}
-                      ${report.status === 'processing' ? 'bg-blue-100 text-blue-700 dark:bg-blue-900/30 dark:text-blue-400' : ''}
-                    `}>
-                      {report.status}
-                    </span>
-                    <span className="flex items-center text-[10px] text-slate-400 font-medium bg-white dark:bg-slate-900 px-2 py-0.5 rounded-full border border-slate-100 dark:border-slate-700">
-                      <Clock size={10} className="mr-1" /> {report.time}
-                    </span>
+            <div className="px-8 space-y-6 flex-1 overflow-y-auto custom-scrollbar pb-8">
+              {[
+                { id: 1, title: 'Road Repair Request', loc: 'Dhanmondi 27', pts: 850, type: 'Infrastructure' },
+                { id: 2, title: 'Water Leakage Alert', loc: 'Uttara Sec 4', pts: 420, type: 'WASA' },
+                { id: 3, title: 'Street Light Failure', loc: 'Mirpur 10', pts: 120, type: 'Electric' },
+                { id: 4, title: 'Uncollected Trash', loc: 'Gulshan 2', pts: 95, type: 'Environment' },
+              ].map((item) => (
+                <div key={item.id} className="p-5 rounded-[1.5rem] bg-white/10 hover:bg-white/20 border border-white/10 transition-all duration-300 cursor-pointer group/item">
+                  <div className="flex justify-between items-start mb-3">
+                    <span className="text-[10px] font-black tracking-widest uppercase px-3 py-1 bg-black/20 rounded-full border border-white/10">{item.type}</span>
+                    <div className="flex items-center gap-1 text-amber-300">
+                       <TrendingUp size={12} />
+                       <span className="text-[10px] font-bold">HOT</span>
+                    </div>
                   </div>
-                  <h4 className="text-sm font-bold text-slate-800 dark:text-slate-200 mb-1.5 group-hover:text-emerald-600 dark:group-hover:text-emerald-400 transition-colors line-clamp-1">
-                    {report.title}
-                  </h4>
-                  <div className="flex items-center text-xs text-slate-500 dark:text-slate-400">
-                    <MapPin size={12} className="mr-1 text-slate-400" />
-                    {report.location}
+                  <h4 className="text-lg font-black leading-tight group-hover/item:text-amber-200 transition-colors">{item.title}</h4>
+                  <div className="flex items-center justify-between mt-4">
+                    <div className="flex items-center gap-1.5 text-xs font-bold opacity-70">
+                       <MapPin size={14} /> {item.loc}
+                    </div>
+                    <div className="text-xs font-black bg-white text-indigo-600 px-3 py-1 rounded-xl shadow-lg">
+                       +{item.pts} Impact
+                    </div>
                   </div>
                 </div>
               ))}
             </div>
 
-            <div className="p-4 border-t border-slate-100 dark:border-slate-800 mt-auto">
-              <button className="w-full flex items-center justify-center gap-2 py-3 text-xs font-bold text-slate-500 hover:text-emerald-600 hover:bg-slate-50 dark:hover:bg-slate-800 rounded-xl transition-all">
-                আরও লোড করুন <ChevronRight size={14} />
-              </button>
+            <div className="p-8 pt-0">
+               <button className="w-full py-5 bg-white text-indigo-600 font-black rounded-[1.5rem] shadow-2xl transition-all hover:scale-[1.03] active:scale-95 uppercase tracking-widest text-xs flex items-center justify-center gap-3">
+                 View Global Map <ArrowRight size={18} />
+               </button>
             </div>
           </GlassCard>
         </div>
       </div>
+
+      {/* District Leaders Island */}
+      <GlassCard className="relative overflow-hidden group/leaders" accent="amber">
+         <div className="flex flex-col md:flex-row items-center justify-between mb-8 gap-6">
+            <div className="space-y-1 text-center md:text-left">
+              <h3 className="text-3xl font-black text-slate-800 dark:text-white tracking-tighter">Civic Health Leaderboard</h3>
+              <p className="text-sm font-bold text-slate-500 uppercase tracking-widest opacity-60">Top performing regions this quarter</p>
+            </div>
+            <div className="flex -space-x-4">
+               {[1,2,3,4,5].map(i => (
+                 <div key={i} className="w-12 h-12 rounded-full border-4 border-white dark:border-slate-900 bg-slate-200 overflow-hidden shadow-xl">
+                   <img src={`https://api.dicebear.com/7.x/avataaars/svg?seed=${i}`} alt="user" />
+                 </div>
+               ))}
+               <div className="w-12 h-12 rounded-full border-4 border-white dark:border-slate-900 bg-indigo-500 flex items-center justify-center text-white text-xs font-black shadow-xl">
+                 +12k
+               </div>
+            </div>
+         </div>
+         
+         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-6">
+           {[
+             { name: 'Sylhet', score: 92, icon: '🌲', color: 'emerald' },
+             { name: 'Dhaka', score: 45, icon: '🏙️', color: 'rose' },
+             { name: 'Khulna', score: 78, icon: '🦐', color: 'indigo' },
+             { name: 'Barisal', score: 65, icon: '🚤', color: 'amber' },
+             { name: 'Rangpur', score: 82, icon: '🌾', color: 'cyan' },
+           ].map((d) => (
+             <div key={d.name} className="p-6 rounded-[2rem] bg-slate-50 dark:bg-white/5 border border-transparent hover:border-slate-200 dark:hover:border-white/10 transition-all text-center group/dist cursor-pointer shadow-sm hover:shadow-xl">
+                <span className="text-4xl mb-4 block group-hover/dist:scale-125 transition-transform duration-500">{d.icon}</span>
+                <h4 className="text-xl font-black text-slate-800 dark:text-white mb-2">{d.name}</h4>
+                <div className="space-y-2">
+                   <div className="h-2 w-full bg-slate-200 dark:bg-slate-800 rounded-full overflow-hidden">
+                      <div className={`h-full bg-vibrant-${d.color} rounded-full`} style={{ width: `${d.score}%` }}></div>
+                   </div>
+                   <span className={`text-lg font-black text-vibrant-${d.color}`}>{d.score}%</span>
+                </div>
+             </div>
+           ))}
+         </div>
+      </GlassCard>
     </div>
   );
 };

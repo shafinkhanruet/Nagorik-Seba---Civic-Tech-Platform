@@ -1,14 +1,9 @@
+
 import React, { useState } from 'react';
 import { useApp } from '../context/AppContext';
 import { ResponsiveContainer, RadarChart, PolarGrid, PolarAngleAxis, PolarRadiusAxis, Radar } from 'recharts';
 import { BrainCircuit, RefreshCw, Heart } from 'lucide-react';
-
-export interface MoralMetrics {
-  povertyBenefit: number;
-  displacementRisk: number;
-  environmentalImpact: number;
-  socialJustice: number;
-}
+import { MoralMetrics } from '../types';
 
 interface Props {
   metrics: MoralMetrics;
@@ -22,9 +17,7 @@ export const MoralImpactPanel: React.FC<Props> = ({ metrics, isAdmin = false, on
   const [isCalculating, setIsCalculating] = useState(false);
 
   // Mock calculation for label
-  // Benefit factors (positive)
   const benefit = metrics.povertyBenefit + metrics.socialJustice;
-  // Risk factors (negative implication, but chart values are 0-100 magnitude)
   const risk = metrics.displacementRisk + metrics.environmentalImpact;
   
   const netScore = benefit - risk;

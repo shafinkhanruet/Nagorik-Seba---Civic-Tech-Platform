@@ -1,4 +1,3 @@
-
 import React, { ReactNode } from 'react';
 
 interface GlassCardProps {
@@ -6,31 +5,44 @@ interface GlassCardProps {
   className?: string;
   noPadding?: boolean;
   hoverEffect?: boolean;
+  accent?: 'emerald' | 'indigo' | 'rose' | 'amber' | 'none';
 }
 
 export const GlassCard: React.FC<GlassCardProps> = ({ 
   children, 
   className = '', 
   noPadding = false,
-  hoverEffect = false
+  hoverEffect = true,
+  accent = 'none'
 }) => {
+  const accentStyles = {
+    emerald: 'before:bg-emerald-500 hover:border-emerald-500/50',
+    indigo: 'before:bg-indigo-500 hover:border-indigo-500/50',
+    rose: 'before:bg-rose-500 hover:border-rose-500/50',
+    amber: 'before:bg-amber-500 hover:border-amber-500/50',
+    none: ''
+  };
+
   return (
     <div className={`
       relative overflow-hidden
-      bg-white/80 dark:bg-slate-900/60
-      backdrop-blur-xl
-      border border-slate-200/60 dark:border-slate-700/60
-      shadow-xl shadow-slate-200/40 dark:shadow-slate-950/40
-      rounded-2xl
-      transition-all duration-300
-      ${hoverEffect ? 'hover:shadow-2xl hover:shadow-indigo-500/10 hover:-translate-y-1' : ''}
-      ${noPadding ? '' : 'p-6'}
+      bg-white/60 dark:bg-slate-900/40
+      backdrop-blur-2xl
+      border border-white/40 dark:border-white/5
+      shadow-xl shadow-slate-200/50 dark:shadow-black/40
+      rounded-[2rem]
+      transition-all duration-500 cubic-bezier(0.4, 0, 0.2, 1)
+      ${accent !== 'none' ? `before:absolute before:top-0 before:left-0 before:w-1.5 before:h-full ${accentStyles[accent]}` : ''}
+      ${hoverEffect ? 'hover:shadow-2xl hover:-translate-y-1.5 hover:bg-white/80 dark:hover:bg-slate-900/60' : ''}
+      ${noPadding ? '' : 'p-8'}
       ${className}
     `}>
-      {/* Subtle top gradient highlight for 3D feel */}
-      <div className="absolute inset-x-0 top-0 h-px bg-gradient-to-r from-transparent via-white/50 dark:via-slate-400/20 to-transparent opacity-50" />
+      {/* Dynamic light refraction effect */}
+      <div className="absolute -top-24 -left-24 w-48 h-48 bg-gradient-to-br from-white/40 to-transparent dark:from-white/10 rounded-full blur-3xl pointer-events-none group-hover:scale-150 transition-transform duration-700" />
       
-      {children}
+      <div className="relative z-10">
+        {children}
+      </div>
     </div>
   );
 };

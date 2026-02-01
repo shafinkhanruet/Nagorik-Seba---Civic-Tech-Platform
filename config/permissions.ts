@@ -1,53 +1,54 @@
+
 import { Role } from '../types';
 
-// Define all available permissions in the system
-export type Permission = 
+export type Permission =
+  | 'view:dashboard'
   | 'view:admin_panel'
-  | 'view:sensitive_data'
+  | 'action:submit_report'
   | 'action:vote'
-  | 'action:report'
-  | 'action:comment'
-  | 'action:moderate'
-  | 'action:freeze_project'
-  | 'action:approve_project'
+  | 'action:file_rti'
+  | 'action:moderate' // updated from moderate_content to match usage
+  | 'action:manage_projects'
+  | 'action:approve_project' // Added
+  | 'action:freeze_project' // Added
   | 'action:manage_crisis'
-  | 'action:unlock_identity'
-  | 'action:upload_court_order'
-  | 'action:manage_districts'
-  | 'action:manage_rti';
+  | 'action:unlock_identity';
 
-// The centralized Matrix
-export const ROLE_PERMISSIONS: Record<Role, Permission[] | '*'> = {
+const PERMISSIONS: Record<Role, Permission[]> = {
   citizen: [
+    'view:dashboard',
+    'action:submit_report',
     'action:vote',
-    'action:report',
-    'action:comment'
+    'action:file_rti'
   ],
   moderator: [
+    'view:dashboard',
     'view:admin_panel',
-    'action:vote',
-    'action:comment',
-    'action:moderate',
-    'view:sensitive_data' // Can view reports but not unlock identities
+    'action:moderate'
   ],
   admin: [
+    'view:dashboard',
     'view:admin_panel',
-    'view:sensitive_data',
-    'action:vote',
-    'action:comment',
     'action:moderate',
-    'action:freeze_project',
+    'action:manage_projects',
     'action:approve_project',
-    'action:manage_districts',
-    'action:upload_court_order',
-    'action:manage_rti'
+    'action:freeze_project'
   ],
-  superadmin: '*' // Wildcard: Can do everything
+  superadmin: [
+    'view:dashboard',
+    'view:admin_panel',
+    'action:moderate',
+    'action:manage_projects',
+    'action:approve_project',
+    'action:freeze_project',
+    'action:manage_crisis',
+    'action:unlock_identity'
+  ]
 };
 
-// Helper to check permission
-export const checkPermission = (role: Role, permission: Permission): boolean => {
-  const permissions = ROLE_PERMISSIONS[role];
-  if (permissions === '*') return true;
-  return permissions.includes(permission);
+export const hasPermission = (userRole: Role, permission: Permission): boolean => {
+  return PERMISSIONS[userRole]?.includes(permission) || false;
 };
+
+// Export as checkPermission alias to match usage in hooks
+export const checkPermission = hasPermission;

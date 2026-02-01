@@ -1,351 +1,250 @@
-import { ReportData } from '../components/ReportCard';
-import { ProjectProposalData } from '../components/ProposalCard';
-import { User, Role, RTIRequest } from '../types';
 
-// --- Interfaces for DB Entities ---
+import { Report, ProjectProposalData, AuditLogEntry, User, TenderNode, TenderLink, RTIRequest } from '../types';
 
-export interface AuditLogEntry {
-  id: string;
-  timestamp: string;
-  actor: string;
-  action: string;
-  targetId: string;
-  hash: string;
-  details?: string;
+// Simulation delay
+const delay = (ms: number) => new Promise((resolve) => setTimeout(resolve, ms));
+
+const auth = {
+    login: async (identifier: string): Promise<any> => {
+      await delay(800);
+      // Mock logic to return user details including role
+      const role = identifier.toLowerCase().includes('admin') ? 'admin' : 'citizen';
+      
+      return { 
+        step: 'otp',
+        id: 'u-123',
+        name: 'Rahim Uddin',
+        role: role,
+        trustScore: 85,
+        district: 'Dhaka'
+      };
+    },
+    verifyOtp: async (otp: string): Promise<{ user: User; token: string }> => {
+      await delay(1000);
+      if (otp === '000000') throw new Error('Invalid OTP');
+      return {
+        user: {
+          id: 'u-123',
+          name: 'Rahim Uddin',
+          role: 'citizen',
+          trustScore: 85,
+          district: 'Dhaka'
+        },
+        token: 'mock-jwt-token-xyz'
+      };
+    }
+};
+
+const reports = {
+    getAll: async (): Promise<Report[]> => {
+      await delay(600);
+      return [
+        {
+          id: 'r-1',
+          title: 'Damaged Bridge Railing',
+          category: 'Infrastructure',
+          location: { lat: 23.81, lng: 90.41, address: 'Mirpur 10', district: 'Dhaka', upazila: 'Mirpur' },
+          description: 'The railing on the west side is completely broken.',
+          evidence: [{ type: 'image', url: 'https://images.unsplash.com/photo-1549637642-90187f64f420?auto=format&fit=crop&q=80&w=300' }],
+          truthScore: 92,
+          status: 'verified',
+          timestamp: '2023-10-25T10:00:00Z',
+          timePosted: '2 hrs ago',
+          author: 'Citizen_991',
+          isAnonymous: false,
+          weightedSupport: 1250.5,
+          aiBreakdown: {
+            credibility: 90,
+            evidenceQuality: 85,
+            mediaCheck: 95,
+            historyMatch: 80
+          },
+          aiSummary: 'High confidence visual match with previous structural damage reports.'
+        },
+        {
+          id: 'r-2',
+          title: 'Illegal Waste Dumping',
+          category: 'Environment',
+          location: { lat: 23.79, lng: 90.40, address: 'Banani Lake', district: 'Dhaka', upazila: 'Banani' },
+          description: 'Industrial waste being dumped at night.',
+          evidence: [],
+          truthScore: 65,
+          status: 'review',
+          timestamp: '2023-10-26T08:30:00Z',
+          timePosted: '1 day ago',
+          author: 'User_Anon',
+          isAnonymous: true,
+          weightedSupport: 340.2,
+          aiBreakdown: {
+            credibility: 60,
+            evidenceQuality: 40,
+            mediaCheck: 50,
+            historyMatch: 70
+          }
+        }
+      ];
+    },
+    submit: async (data: any) => {
+      await delay(1500);
+      return { id: 'r-new', status: 'pending_ai_review' };
+    },
+    vote: async (id: string, type: 'support' | 'doubt') => {
+      await delay(500);
+      return { newWeightedScore: 1250.5 };
+    }
+};
+
+const projects = {
+    getAll: async (): Promise<ProjectProposalData[]> => {
+      await delay(700);
+      return [
+        {
+          id: 'p-1',
+          title: 'Metro Rail Extension Line 6',
+          ministry: 'Road Transport and Bridges',
+          location: 'Dhaka',
+          status: 'open',
+          aiSummary: 'High impact project for reducing traffic.',
+          budget: {
+             govt: '500 Cr',
+             aiEstimate: '480 Cr',
+             risk: 'Low'
+          },
+          impacts: ['economic', 'social'],
+          approvalStats: {
+             current: 75,
+             required: 60,
+             totalVotes: 15000
+          },
+          moralMetrics: {
+             povertyBenefit: 80,
+             displacementRisk: 20,
+             environmentalImpact: 30,
+             socialJustice: 70
+          }
+        },
+        {
+          id: 'p-2',
+          title: 'District Hospital Upgrade',
+          ministry: 'Health',
+          location: 'Comilla',
+          status: 'approved',
+          aiSummary: 'Critical infrastructure upgrade.',
+          budget: {
+             govt: '20 Cr',
+             aiEstimate: '19.5 Cr',
+             risk: 'Low'
+          },
+          impacts: ['social'],
+          approvalStats: {
+             current: 88,
+             required: 60,
+             totalVotes: 5000
+          },
+          moralMetrics: {
+             povertyBenefit: 90,
+             displacementRisk: 5,
+             environmentalImpact: 10,
+             socialJustice: 85
+          }
+        }
+      ];
+    }
+};
+
+const admin = {
+    getCrisisStatus: async () => {
+      return { active: false };
+    },
+    activateCrisis: async (reason: string) => {
+      await delay(2000);
+      return { success: true };
+    },
+    getAuditLogs: async (): Promise<AuditLogEntry[]> => {
+      await delay(500);
+      return [
+        { id: 'l-1', actor: 'Admin_X', role: 'admin', action: 'FREEZE_PROJECT', targetId: 'p-2', timestamp: '2023-10-24 14:00', hash: 'sha256-xyz...', details: 'Budget irregularity detected' },
+        { id: 'l-2', actor: 'AI_Sentinel', role: 'superadmin', action: 'FLAG_SYNDICATE', targetId: 'tender-99', timestamp: '2023-10-23 09:15', hash: 'sha256-abc...', details: 'Collusion pattern match 98%' }
+      ];
+    }
+};
+
+const tenders = {
+    getNetwork: async (): Promise<{ nodes: TenderNode[], links: TenderLink[] }> => {
+      await delay(800);
+      return {
+        nodes: [
+          { id: 'Official_A', name: 'Engr. Karim', type: 'official', riskScore: 10 },
+          { id: 'Contractor_X', name: 'BuildFast Ltd', type: 'contractor', riskScore: 85 },
+          { id: 'Contractor_Y', name: 'SafeConstruct', type: 'contractor', riskScore: 15 },
+        ],
+        links: [
+          { source: 'Official_A', target: 'Contractor_X', value: 5 },
+          { source: 'Official_A', target: 'Contractor_Y', value: 1 },
+        ]
+      };
+    }
+};
+
+const rti = {
+    getRequests: async (onlyMy: boolean): Promise<RTIRequest[]> => {
+        await delay(600);
+        return [
+            {
+                id: 'RTI-1001',
+                subject: 'Bridge Cost Breakdown',
+                department: 'LGRD',
+                details: 'Requesting detailed BoQ for project ID 8821.',
+                category: 'Budget',
+                isPublic: true,
+                status: 'responded',
+                dateFiled: '2023-10-01T10:00:00',
+                deadline: '2023-10-21T10:00:00',
+                applicantName: 'Rahim Uddin',
+                trackingId: 'TRK-9921',
+                response: 'The requested documents are attached.'
+            },
+            {
+                id: 'RTI-1002',
+                subject: 'Vaccine Procurement',
+                department: 'Ministry of Health',
+                details: 'Procurement policy for 2023.',
+                category: 'Policy',
+                isPublic: true,
+                status: 'review',
+                dateFiled: '2023-10-15T10:00:00',
+                deadline: '2023-11-05T10:00:00',
+                applicantName: 'Anon Citizen',
+                trackingId: 'TRK-9925'
+            }
+        ];
+    },
+    submit: async (data: any) => {
+        await delay(1000);
+        return { success: true, id: 'RTI-NEW' };
+    },
+    updateStatus: async (id: string, status: string, response: string) => {
+        await delay(1000);
+        return { success: true };
+    }
 }
 
-export interface MockDB {
-  reports: ReportData[];
-  projects: ProjectProposalData[];
-  auditLogs: AuditLogEntry[];
-  users: User[];
-  rtiRequests: RTIRequest[];
-}
-
-// --- Seed Data (Extracted from previous static pages) ---
-
-const SEED_REPORTS: ReportData[] = [
-  {
-    id: '1',
-    category: 'রাস্তা ও জনপদ',
-    location: { district: 'ঢাকা', upazila: 'মিরপুর' },
-    timePosted: '২ ঘণ্টা আগে',
-    isAnonymous: true,
-    description: 'মিরপুর ১০ গোলচত্বরের কাছে প্রধান সড়কে বিশাল গর্ত তৈরি হয়েছে।',
-    truthScore: 88,
-    aiBreakdown: { credibility: 92, evidenceQuality: 85, mediaCheck: 78, historyMatch: 95 },
-    evidence: [{ type: 'image', url: 'https://images.unsplash.com/photo-1515162816999-a0c47dc192f7?auto=format&fit=crop&q=80&w=200' }],
-    weightedSupport: 1240,
-    status: 'verified',
-    influenceAnalysis: { riskLevel: 'Low', timelineData: [] }
-  },
-  {
-    id: '2',
-    category: 'স্বাস্থ্যসেবা',
-    location: { district: 'চট্টগ্রাম', upazila: 'পতেঙ্গা' },
-    timePosted: '৪ ঘণ্টা আগে',
-    isAnonymous: false,
-    description: 'সরকারি হাসপাতালে নির্ধারিত সময়ে ডাক্তার পাওয়া যাচ্ছে না।',
-    truthScore: 65,
-    aiBreakdown: { credibility: 70, evidenceQuality: 60, mediaCheck: 50, historyMatch: 80 },
-    evidence: [],
-    weightedSupport: 850,
-    status: 'review',
-    influenceAnalysis: { riskLevel: 'Medium', timelineData: [] }
-  }
-];
-
-const SEED_PROJECTS: ProjectProposalData[] = [
-  {
-    id: 'PRJ-105',
-    title: 'Meghna 2nd Bridge Construction',
-    ministry: 'Roads & Highways',
-    location: 'Munshiganj',
-    status: 'open',
-    aiSummary: 'Reduces congestion by 30%. Displacement of 200 families predicted.',
-    budget: { govt: '1200 Cr', aiEstimate: '1150 Cr', risk: 'Medium' },
-    impacts: ['economic', 'displacement'],
-    approvalStats: { current: 58, required: 60, totalVotes: 12543 },
-    hasVoted: false,
-    moralMetrics: {
-        povertyBenefit: 65,
-        displacementRisk: 70,
-        environmentalImpact: 45,
-        socialJustice: 55
-    }
-  },
-  {
-    id: 'PRJ-108',
-    title: 'Sheikh Russel IT Park',
-    ministry: 'ICT Division',
-    location: 'Gazipur',
-    status: 'approved',
-    aiSummary: 'High youth employment potential. Minimal environmental impact.',
-    budget: { govt: '450 Cr', aiEstimate: '440 Cr', risk: 'Low' },
-    impacts: ['economic', 'social'],
-    approvalStats: { current: 82, required: 60, totalVotes: 8900 },
-    hasVoted: true,
-    moralMetrics: {
-        povertyBenefit: 85,
-        displacementRisk: 10,
-        environmentalImpact: 15,
-        socialJustice: 90
-    }
-  }
-];
-
-const SEED_LOGS: AuditLogEntry[] = [
-  {
-    id: 'L-9021',
-    timestamp: '2023-11-20 14:30:22',
-    actor: 'System',
-    action: 'System Initialization',
-    targetId: 'SYS-001',
-    hash: '0x8f2d...init'
-  }
-];
-
-const SEED_RTI: RTIRequest[] = [
-  {
-    id: 'RTI-24-001',
-    department: 'Health Ministry',
-    subject: 'Budget allocation for Upazila Hospitals',
-    details: 'Requesting detailed breakdown of budget allocation for X-Ray machines in Sylhet district upazilas for FY 2023-24.',
-    category: 'Budget',
-    isPublic: true,
-    status: 'acknowledged',
-    dateFiled: new Date(Date.now() - 5 * 86400000).toISOString(), // 5 days ago
-    deadline: new Date(Date.now() + 15 * 86400000).toISOString(),
-    applicantName: 'Rahim Uddin',
-    trackingId: 'TRK-99281'
-  },
-  {
-    id: 'RTI-24-002',
-    department: 'LGRD',
-    subject: 'Road repair tender documents',
-    details: 'Copy of tender documents for road repair work in Mirpur 10 (Contract ID: #8821).',
-    category: 'Tender',
-    isPublic: true,
-    status: 'responded',
-    dateFiled: new Date(Date.now() - 25 * 86400000).toISOString(),
-    deadline: new Date(Date.now() - 5 * 86400000).toISOString(),
-    response: 'The requested documents have been uploaded to the public archive. Link: [Archive #8821]',
-    applicantName: 'Anonymous',
-    trackingId: 'TRK-11029'
-  }
-];
-
-// --- Mock Service Class ---
-
-class MockApiService {
-  private db: MockDB;
-  private DEMO_MODE = true;
-
-  constructor() {
-    this.db = this.loadDB();
-  }
-
-  private loadDB(): MockDB {
-    const saved = localStorage.getItem('civic_mock_db_v1');
-    if (saved) {
-      return JSON.parse(saved);
-    }
-    const initial: MockDB = {
-      reports: SEED_REPORTS,
-      projects: SEED_PROJECTS,
-      auditLogs: SEED_LOGS,
-      users: [],
-      rtiRequests: SEED_RTI
-    };
-    this.saveDB(initial);
-    return initial;
-  }
-
-  private saveDB(db: MockDB = this.db) {
-    localStorage.setItem('civic_mock_db_v1', JSON.stringify(db));
-  }
-
-  private async delay(ms = 800) {
-    return new Promise(resolve => setTimeout(resolve, ms));
-  }
-
-  private simulateError() {
-    // 5% chance of error
-    if (Math.random() < 0.05) {
-      throw new Error("Simulated Backend Error (5% Chance)");
-    }
-  }
-
-  private generateHash(): string {
-    return '0x' + Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
-  }
-
-  // --- Auth API ---
-
-  async login(identifier: string): Promise<User> {
-    await this.delay(1000);
-    this.simulateError();
-
-    const lowerId = identifier.toLowerCase();
-    let role: Role = 'citizen';
-    let name = 'Citizen User';
-
-    if (lowerId.includes('super')) { role = 'superadmin'; name = 'Super Administrator'; }
-    else if (lowerId.includes('admin')) { role = 'admin'; name = 'System Admin'; }
-    else if (lowerId.includes('mod')) { role = 'moderator'; name = 'Content Moderator'; }
-
-    return {
-      id: `usr-${Date.now()}`,
-      name,
-      role,
-      token: 'mock-jwt-token',
-      expiresAt: Date.now() + (role === 'citizen' ? 86400000 : 3600000)
-    };
-  }
-
-  // --- Reports API ---
-
-  async getReports(): Promise<ReportData[]> {
-    await this.delay(600);
-    return [...this.db.reports];
-  }
-
-  async voteReport(reportId: string, type: 'support' | 'doubt', userWeight: number): Promise<{ newWeight: number }> {
-    await this.delay(400);
-    this.simulateError();
-
-    const report = this.db.reports.find(r => r.id === reportId);
-    if (!report) throw new Error("Report not found");
-
-    if (type === 'support') {
-      report.weightedSupport += userWeight;
-    }
-    // Simple logic: doubt doesn't reduce support in this model, just flags it internally
-    
-    this.saveDB();
-    return { newWeight: report.weightedSupport };
-  }
-
-  // --- Projects API ---
-
-  async getProjects(): Promise<ProjectProposalData[]> {
-    await this.delay(600);
-    return [...this.db.projects];
-  }
-
-  async voteProject(projectId: string, voteType: 'support' | 'reject'): Promise<ProjectProposalData> {
-    await this.delay(500);
-    const project = this.db.projects.find(p => p.id === projectId);
-    if (!project) throw new Error("Project not found");
-
-    project.approvalStats.totalVotes += 1;
-    // Mock calculation for percentage change
-    if (voteType === 'support') {
-        const currentVoteCount = (project.approvalStats.current / 100) * (project.approvalStats.totalVotes - 1);
-        project.approvalStats.current = Math.round(((currentVoteCount + 1) / project.approvalStats.totalVotes) * 100);
-    } else {
-        const currentVoteCount = (project.approvalStats.current / 100) * (project.approvalStats.totalVotes - 1);
-        project.approvalStats.current = Math.round(((currentVoteCount) / project.approvalStats.totalVotes) * 100);
-    }
-    
-    project.hasVoted = true;
-    this.saveDB();
-    return project;
-  }
-
-  // --- RTI API ---
-
-  async getRTIRequests(publicOnly = false): Promise<RTIRequest[]> {
-    await this.delay(600);
-    if (publicOnly) {
-      return this.db.rtiRequests.filter(r => r.isPublic);
-    }
-    return [...this.db.rtiRequests];
-  }
-
-  async submitRTIRequest(req: Omit<RTIRequest, 'id' | 'status' | 'dateFiled' | 'deadline' | 'trackingId'>): Promise<RTIRequest> {
-    await this.delay(1200);
-    const newReq: RTIRequest = {
-      ...req,
-      id: `RTI-${new Date().getFullYear()}-${Math.floor(Math.random() * 1000)}`,
-      status: 'submitted',
-      dateFiled: new Date().toISOString(),
-      deadline: new Date(Date.now() + 20 * 86400000).toISOString(), // 20 days default
-      trackingId: `TRK-${Math.floor(Math.random() * 100000)}`
-    };
-    this.db.rtiRequests.unshift(newReq);
-    this.saveDB();
-    return newReq;
-  }
-
-  async updateRTIStatus(id: string, status: RTIRequest['status'], response?: string): Promise<RTIRequest> {
-    await this.delay(800);
-    const req = this.db.rtiRequests.find(r => r.id === id);
-    if (!req) throw new Error("RTI Request not found");
-    
-    req.status = status;
-    if (response) req.response = response;
-    
-    this.saveDB();
-    return req;
-  }
-
-  // --- Admin Actions with Audit ---
-
-  private async _logAction(actor: string, action: string, targetId: string, details?: string) {
-    const entry: AuditLogEntry = {
-      id: `L-${Date.now()}`,
-      timestamp: new Date().toLocaleString(),
-      actor,
-      action,
-      targetId,
-      details,
-      hash: this.generateHash()
-    };
-    this.db.auditLogs.unshift(entry);
-    this.saveDB();
-  }
-
-  async approveProject(projectId: string, actorName: string, reason: string): Promise<void> {
-    await this.delay(1000);
-    this.simulateError();
-    
-    const project = this.db.projects.find(p => p.id === projectId);
-    if (!project) throw new Error("Project not found");
-
-    project.status = 'approved';
-    await this._logAction(actorName, 'APPROVE_PROJECT', projectId, reason);
-  }
-
-  async rejectProject(projectId: string, actorName: string, reason: string): Promise<void> {
-    await this.delay(1000);
-    const project = this.db.projects.find(p => p.id === projectId);
-    if (!project) throw new Error("Project not found");
-
-    project.status = 'rejected';
-    await this._logAction(actorName, 'REJECT_PROJECT', projectId, reason);
-  }
-
-  async freezeProject(projectId: string, actorName: string, reason: string): Promise<void> {
-    await this.delay(800);
-    const project = this.db.projects.find(p => p.id === projectId);
-    if (!project) throw new Error("Project not found");
-
-    project.status = 'frozen' as any;
-    await this._logAction(actorName, 'FREEZE_PROJECT', projectId, reason);
-  }
-
-  async getAuditLogs(): Promise<AuditLogEntry[]> {
-    await this.delay(500);
-    return [...this.db.auditLogs];
-  }
-
-  // --- Reset for Demo ---
-  resetDemo() {
-    localStorage.removeItem('civic_mock_db_v1');
-    this.db = this.loadDB();
-    window.location.reload();
-  }
-}
-
-export const mockApi = new MockApiService();
+export const mockApi = {
+  auth,
+  reports,
+  projects,
+  admin,
+  tenders,
+  rti,
+  
+  getReports: reports.getAll,
+  getProjects: projects.getAll,
+  getAuditLogs: admin.getAuditLogs,
+  getRTIRequests: rti.getRequests,
+  submitRTIRequest: rti.submit,
+  updateRTIStatus: rti.updateStatus,
+  
+  approveProject: async (id: string, actor: string, reason: string) => { await delay(1000); return true; },
+  rejectProject: async (id: string, actor: string, reason: string) => { await delay(1000); return true; },
+  freezeProject: async (id: string, actor: string, reason: string) => { await delay(1000); return true; },
+};
