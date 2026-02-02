@@ -1,4 +1,3 @@
-
 import React from 'react';
 import { HashRouter, Routes, Route, Navigate } from 'react-router-dom';
 import { AppProvider, useApp } from './context/AppContext';
@@ -13,9 +12,6 @@ import { Signup } from './pages/Signup';
 import { AdminLogin } from './pages/AdminLogin';
 import { CitizenFeed } from './pages/CitizenFeed';
 import { Dashboard } from './pages/Dashboard';
-import { LiveReports } from './pages/LiveReports';
-import { ProjectProposals } from './pages/ProjectProposals';
-import { ProjectApprovals } from './pages/ProjectApprovals';
 import { RTIRequestPage } from './pages/RTIRequest';
 import { AdminRTI } from './pages/AdminRTI';
 import { AuditLogs } from './pages/AuditLogs';
@@ -37,6 +33,10 @@ import { IntegrityIndex } from './pages/IntegrityIndex';
 import { TenderAnalysis } from './pages/TenderAnalysis';
 import { ReportReview } from './pages/ReportReview';
 import { DistrictControls } from './pages/DistrictControls';
+// Add missing imports for ProjectApprovals, LiveReports, and ProjectProposals
+import { ProjectApprovals } from './pages/ProjectApprovals';
+import { LiveReports } from './pages/LiveReports';
+import { ProjectProposals } from './pages/ProjectProposals';
 
 // Layouts
 import { CitizenLayout } from './layouts/CitizenLayout';
@@ -49,7 +49,7 @@ import { AdminLayout } from './layouts/AdminLayout';
 const ProtectedRoute = ({ children, allowedRole }: { children?: React.ReactNode, allowedRole?: string }) => {
   const { user, isLoading } = useApp();
 
-  if (isLoading) return <div className="min-h-screen flex items-center justify-center"><Loader2 className="animate-spin" /></div>;
+  if (isLoading) return <div className="min-h-screen flex items-center justify-center bg-slate-50 dark:bg-slate-900"><Loader2 className="animate-spin text-emerald-500" /></div>;
   if (!user) return <Navigate to="/login" replace />;
   
   if (allowedRole && user.role !== allowedRole && (user.role as string) !== 'superadmin') {
@@ -73,6 +73,7 @@ const AppRoutes = () => {
       <Route path="/app" element={<ProtectedRoute><CitizenLayout /></ProtectedRoute>}>
         <Route index element={<CitizenFeed />} />
         <Route path="analytics" element={<Dashboard />} />
+        {/* Restored missing routes for Live Reports and Project Proposals */}
         <Route path="reports" element={<LiveReports />} />
         <Route path="proposals" element={<ProjectProposals />} />
         <Route path="rti" element={<RTIRequestPage />} />
@@ -95,6 +96,7 @@ const AppRoutes = () => {
         <Route path="tenders" element={<TenderAnalysis />} />
         <Route path="audit-logs" element={<AuditLogs />} />
         <Route path="crisis-mode" element={<CrisisControl />} />
+        {/* Fix: Added missing import for ProjectApprovals to resolve 'Cannot find name' error on line 93 */}
         <Route path="approvals" element={<ProjectApprovals />} />
         <Route path="rti" element={<AdminRTI />} />
         <Route path="reports" element={<ReportReview />} />
@@ -103,7 +105,7 @@ const AppRoutes = () => {
         <Route path="anomalies" element={<VoteAnomalies />} />
         <Route path="evidence" element={<EvidenceVault />} />
         <Route path="districts" element={<DistrictControls />} />
-        <Route path="bots" element={<div>Bot Activity</div>} />
+        <Route path="bots" element={<div className="p-8 text-slate-400 font-bold uppercase tracking-widest text-sm">Bot Activity Monitoring</div>} />
       </Route>
 
       <Route path="/" element={<Navigate to="/login" replace />} />

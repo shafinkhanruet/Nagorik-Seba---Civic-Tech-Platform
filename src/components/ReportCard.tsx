@@ -4,7 +4,8 @@ import { useApp } from '../context/AppContext';
 import { GlassCard } from './GlassCard';
 import { InfoTooltip } from './InfoTooltip';
 import { SensitiveContentWrapper } from './SensitiveContentWrapper';
-import { EvidenceAnalysis, EvidenceMetrics } from './EvidenceAnalysis';
+import { EvidenceAnalysis } from './EvidenceAnalysis';
+import { EvidenceMetrics } from '../types';
 import { AuthorityResponsePanel } from './AuthorityResponsePanel';
 import { FollowButton } from './FollowButton';
 import { usePermission } from '../hooks/usePermission';
@@ -48,7 +49,15 @@ interface ReportCardProps {
 // ... (MOCK_COMMENTS & MOCK_TIMELINE remain same as before, omitted for brevity but assumed present)
 const MOCK_COMMENTS = []; 
 const MOCK_TIMELINE = []; 
-const getMockAnalysis = (id: any) => ({ credibilityScore: 88, forensicResult: 'authentic', tamperingRisk: 'low', freshness: 'recent', chainStatus: 'verified' });
+const getMockAnalysis = (id: any): EvidenceMetrics => ({
+  credibilityScore: 88,
+  forensicResult: 'authentic',
+  tamperingRisk: 'low',
+  freshness: 'recent',
+  chainStatus: 'verified',
+  metadataCheck: true,
+  elaAnalysis: 95
+});
 
 const ReportModal = ({ onClose, onSubmit }: any) => <div onClick={onClose}>Mock Modal</div>; // Placeholder for brevity
 

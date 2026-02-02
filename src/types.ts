@@ -10,8 +10,11 @@ export interface User {
   token?: string;
   trustScore: number;
   district?: string;
-  homeLocation?: { lat: number; lng: number }; // System 18: Geo-Weighted
+  homeLocation?: { lat: number; lng: number }; 
   expiresAt?: number;
+  // System 17: Reputation Tracking
+  reputationHistory?: { date: string; score: number; reason: string }[];
+  isShadowbanned?: boolean; // System 2
 }
 
 // System 1: Truth Probability Engine Inputs
@@ -34,8 +37,9 @@ export interface ReportLocation {
 export interface InfluenceData {
   riskLevel: 'Low' | 'Medium' | 'High';
   timelineData: { time: string; value: number; isSpike?: boolean }[];
-  explanation?: string; // System 22: Explainability
-  clusterId?: string; // System 2: Bot Detection
+  explanation?: string;
+  clusterId?: string;
+  botProbability: number;
 }
 
 export interface AuthorityResponseData {
@@ -53,7 +57,7 @@ export interface Report {
   categoryIcon?: any;
   location: ReportLocation;
   description: string;
-  evidence: { type: 'image' | 'video' | 'doc'; url: string; isSensitive?: boolean; hash?: string }[];
+  evidence: { type: 'image' | 'video' | 'doc'; url: string; isSensitive?: boolean; hash?: string; analysis?: EvidenceMetrics }[];
   
   // System 1 Output
   truthScore: number; 
@@ -105,7 +109,7 @@ export interface ProjectProposalData {
   title: string;
   ministry: string;
   location: string;
-  status: 'open' | 'closed' | 'approved' | 'rejected' | 'frozen'; // System 15: Frozen
+  status: 'open' | 'closed' | 'approved' | 'rejected' | 'frozen';
   aiSummary: string;
   budget: {
     govt: string;
@@ -121,7 +125,7 @@ export interface ProjectProposalData {
   };
   hasVoted?: boolean;
   moralMetrics?: MoralMetrics;
-  geoFence?: { lat: number; lng: number; radius: number }; // System 18
+  geoFence?: { lat: number; lng: number; radius: number };
 }
 
 // System 16: Audit Log
@@ -135,7 +139,7 @@ export interface AuditLogEntry {
   previousHash: string; // Blockchain-style linking
   hash: string;
   details?: string;
-  reasonCode?: string; // System 25
+  reasonCode?: string;
 }
 
 // System 6: Tender Risk
@@ -175,7 +179,7 @@ export interface TranslationDictionary {
   };
 }
 
-export type NotificationType = 'project' | 'district' | 'report' | 'hospital';
+export type NotificationType = 'project' | 'district' | 'report' | 'hospital' | 'security' | 'legal';
 
 export interface NotificationItem {
   id: string;
@@ -185,7 +189,7 @@ export interface NotificationItem {
   timestamp: string;
   read: boolean;
   link?: string;
-  riskLevel?: 'low' | 'high'; // System 21
+  priority: 'low' | 'normal' | 'high' | 'critical'; // System 21
 }
 
 export interface WatchlistItem {
@@ -202,7 +206,7 @@ export interface NotificationSettings {
   reportStatus: boolean;
 }
 
-export type RTIStatus = 'submitted' | 'acknowledged' | 'review' | 'responded' | 'closed' | 'escalated'; // System 20
+export type RTIStatus = 'submitted' | 'acknowledged' | 'review' | 'responded' | 'closed' | 'escalated' | 'violation';
 
 export interface RTIRequest {
   id: string;
@@ -217,4 +221,26 @@ export interface RTIRequest {
   applicantName: string;
   trackingId: string;
   response?: string;
+}
+
+// System 19: Evidence Metrics (EVP)
+export interface EvidenceMetrics {
+  credibilityScore: number; // 0-100
+  forensicResult: 'authentic' | 'edited' | 'unclear';
+  tamperingRisk: 'low' | 'medium' | 'high';
+  freshness: 'recent' | 'old';
+  chainStatus: 'verified' | 'pending';
+  metadataCheck: boolean;
+  elaAnalysis: number; // Error Level Analysis score 0-100
+}
+
+// System 7: District Integrity
+export interface DistrictMetric {
+  id: string;
+  name: string;
+  complaintsResolved: number;
+  totalComplaints: number;
+  avgResponseTimeHours: number;
+  rtiResponseRate: number; // 0-1
+  satisfactionScore: number; // 0-100
 }

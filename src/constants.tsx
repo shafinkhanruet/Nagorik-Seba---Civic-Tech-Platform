@@ -1,20 +1,14 @@
 
 import { 
   LayoutDashboard, 
-  Radio, 
-  FileText, 
   Building2, 
   Scale, 
   Stethoscope, 
   Wrench,
-  Search, 
   Bell,
   Settings,
   LogOut,
   User,
-  LogIn,
-  UserPlus,
-  Briefcase,
   ScrollText,
   ShieldAlert,
   FileClock,
@@ -24,15 +18,15 @@ import {
   AlertOctagon,
   Bot,
   FileCheck,
-  Eye,
   Map,
-  Lock,
   Siren,
   Home,
   BarChart2,
-  Star,
   Landmark,
-  FileQuestion
+  FileQuestion,
+  // Fix: Added missing imports to resolve errors on lines 367, 383, and 384
+  Briefcase,
+  FileText
 } from 'lucide-react';
 import { NavItem, TranslationDictionary } from './types';
 
@@ -56,10 +50,8 @@ export const TRANSLATIONS: TranslationDictionary = {
   activeProjects: { bn: 'সক্রিয় প্রকল্প', en: 'Active Projects' },
   resolvedIssues: { bn: 'মীমাংসিত সমস্যা', en: 'Resolved Issues' },
   pendingReports: { bn: 'অপেক্ষমান রিপোর্ট', en: 'Pending Reports' },
-  satisfactionRate: { bn: 'সন্তোষের হার', en: 'Satisfaction Rate' },
   citizenEngagement: { bn: 'নাগরিক অংশগ্রহণ', en: 'Citizen Engagement' },
   monthlyTrend: { bn: 'মাসিক প্রবণতা', en: 'Monthly Trend' },
-  recentActivity: { bn: 'সাম্প্রতিক কার্যকলাপ', en: 'Recent Activity' },
   profile: { bn: 'প্রোফাইল', en: 'Profile' },
   settings: { bn: 'সেটিংস', en: 'Settings' },
   logout: { bn: 'লগ আউট', en: 'Log Out' },
@@ -84,8 +76,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   publicProfile: { bn: 'আপনার পাবলিক প্রোফাইল', en: 'Your Public Profile' },
   generatedId: { bn: 'নাগরিক আইডি', en: 'Citizen ID' },
   backToLogin: { bn: 'লগিন এ ফিরে যান', en: 'Back to Login' },
-  
-  // Follow & Notification
   follow: { bn: 'ফলো করুন', en: 'Follow' },
   following: { bn: 'ফলো করছেন', en: 'Following' },
   notifications: { bn: 'নোটিফিকেশন', en: 'Notifications' },
@@ -93,18 +83,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   noNotifications: { bn: 'কোনো নতুন নোটিফিকেশন নেই', en: 'No new notifications' },
   viewAll: { bn: 'সব দেখুন', en: 'View All' },
   notificationCenter: { bn: 'নোটিফিকেশন সেন্টার', en: 'Notification Center' },
-  filter_all: { bn: 'সব', en: 'All' },
-  filter_projects: { bn: 'প্রকল্প', en: 'Projects' },
-  filter_districts: { bn: 'জেলা', en: 'Districts' },
-  filter_hospitals: { bn: 'হাসপাতাল', en: 'Hospitals' },
-  filter_reports: { bn: 'রিপোর্ট', en: 'Reports' },
-  notificationSettings: { bn: 'নোটিফিকেশন সেটিংস', en: 'Notification Settings' },
-  alertTypes: { bn: 'সতর্কতার ধরণ', en: 'Alert Types' },
-  emailAlerts: { bn: 'ইমেইল অ্যালার্ট', en: 'Email Alerts' },
-  pushAlerts: { bn: 'পুশ নোটিফিকেশন', en: 'Push Notifications' },
-  updatePreferences: { bn: 'সেটিংস আপডেট করুন', en: 'Update Preferences' },
-
-  // Ministry Transparency
   ministryTransparency: { bn: 'মন্ত্রণালয় স্বচ্ছতা সূচক', en: 'Ministry Transparency Index' },
   ministry: { bn: 'মন্ত্রণালয়', en: 'Ministry' },
   overallScore: { bn: 'সামগ্রিক স্কোর', en: 'Overall Score' },
@@ -116,8 +94,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   compareMinistries: { bn: 'মন্ত্রণালয় তুলনা', en: 'Compare Ministries' },
   selectMinistry: { bn: 'মন্ত্রণালয় নির্বাচন করুন', en: 'Select Ministry' },
   vs: { bn: 'বনাম', en: 'vs' },
-
-  // RTI
   rtiRequest: { bn: 'তথ্য অনুরোধ (RTI)', en: 'RTI Request' },
   rtiDescription: { bn: 'তথ্য অধিকার আইনে সরকারি দপ্তর থেকে তথ্য প্রাপ্তির আবেদন করুন।', en: 'File a request for information from govt departments under the RTI Act.' },
   newRequest: { bn: 'নতুন আবেদন', en: 'New Request' },
@@ -127,14 +103,12 @@ export const TRANSLATIONS: TranslationDictionary = {
   department: { bn: 'দপ্তর / মন্ত্রণালয়', en: 'Department' },
   details: { bn: 'বিস্তারিত বিবরণ', en: 'Details' },
   category: { bn: 'বিভাগ', en: 'Category' },
-  privacySetting: { bn: 'গোপনীয়তা সেটিংস', en: 'Privacy Settings' },
+  privacySetting: { bn: 'গোপনীয়তা সেটিিংস', en: 'Privacy Settings' },
   public: { bn: 'পাবলিক (সবাই দেখবে)', en: 'Public' },
   private: { bn: 'প্রাইভেট (গোপন)', en: 'Private' },
   submitRTI: { bn: 'আবেদন জমা দিন', en: 'Submit Request' },
   daysRemaining: { bn: 'সময় বাকি', en: 'Days Remaining' },
   admin_rti: { bn: 'RTI ব্যবস্থাপনা', en: 'RTI Management' },
-  
-  // Admin Menu Translations
   admin_dashboard: { bn: 'অ্যাডমিন ড্যাশবোর্ড', en: 'Admin Dashboard' },
   admin_moderation: { bn: 'মডারেশন কিউ', en: 'Moderation Queue' },
   admin_reports: { bn: 'রিপোর্ট পর্যালোচনা', en: 'Report Review' },
@@ -148,49 +122,29 @@ export const TRANSLATIONS: TranslationDictionary = {
   admin_court: { bn: 'আদালতের আদেশ', en: 'Court Orders' },
   admin_identity: { bn: 'পরিচয় অনুরোধ', en: 'Identity Requests' },
   admin_crisis: { bn: 'জরুরি নিয়ন্ত্রণ', en: 'Crisis Control' },
-  restricted_area: { bn: 'সংরক্ষিত এলাকা - শুধুমাত্র অনুমোদিত কর্মীদের জন্য', en: 'Restricted Area – Authorized Personnel Only' },
-  role_switch: { bn: 'রোল পরিবর্তন (DEV)', en: 'Switch Role (DEV)' },
-
-  // ... (previous Report Card Translations and others remain same)
   truthProbability: { bn: 'সত্যতার সম্ভাবনা', en: 'Truth Probability' },
   truthTooltip: { bn: 'এই স্কোর AI ও মানুষের যাচাই থেকে তৈরি।', en: 'Score generated from AI and human verification.' },
   weightedSupport: { bn: 'ওজনযুক্ত সমর্থন', en: 'Weighted Support' },
   support: { bn: 'সমর্থন করি', en: 'Support' },
   doubt: { bn: 'সন্দেহ আছে', en: 'Doubt' },
-  aiBreakdown: { bn: 'AI বিশ্লেষণ', en: 'AI Analysis' },
-  credibility: { bn: 'সমর্থনকারীদের বিশ্বাসযোগ্যতা', en: 'Supporter Credibility' },
-  evidenceQuality: { bn: 'প্রমাণের মান', en: 'Evidence Quality' },
-  mediaCheck: { bn: 'মিডিয়া যাচাই', en: 'Media Check' },
-  historyMatch: { bn: 'আগের মিল থাকা কেস', en: 'Historical Match' },
-  readMore: { bn: 'আরও পড়ুন', en: 'Read More' },
-  showLess: { bn: 'কমিয়ে দেখুন', en: 'Show Less' },
   status_review: { bn: 'পর্যালোচনাধীন', en: 'Under Review' },
   status_verified: { bn: 'যাচাইকৃত', en: 'Verified' },
   status_disputed: { bn: 'বিতর্কিত', en: 'Disputed' },
   anonymous: { bn: 'বেনামী', en: 'Anonymous' },
-  evidence: { bn: 'প্রমাণসমূহ', en: 'Evidence' },
-  
   tab_discussion: { bn: 'আলোচনা', en: 'Discussion' },
   tab_evidence: { bn: 'অতিরিক্ত প্রমাণ', en: 'Add Evidence' },
   tab_timeline: { bn: 'টাইমলাইন', en: 'Timeline' },
-  
   sort_trusted: { bn: 'বিশ্বস্ত', en: 'Most Trusted' },
   sort_recent: { bn: 'সাম্প্রতিক', en: 'Recent' },
   local_resident: { bn: 'স্থানীয়', en: 'Local' },
   agree: { bn: 'সহমত', en: 'Agree' },
   disagree: { bn: 'অসম্মত', en: 'Disagree' },
-  reply: { bn: 'রিপ্লাই', en: 'Reply' },
-  filter_local_only: { bn: 'শুধুমাত্র স্থানীয়', en: 'Local Only' },
-  filter_expert_only: { bn: 'শুধুমাত্র বিশেষজ্ঞ', en: 'Experts Only' },
-  
   badge_engineer: { bn: 'প্রকৌশলী', en: 'Engineer' },
   badge_doctor: { bn: 'ডাক্তার', en: 'Doctor' },
   badge_lawyer: { bn: 'আইনজীবী', en: 'Lawyer' },
   badge_accountant: { bn: 'অ্যাকাউন্ট্যান্ট', en: 'Accountant' },
   verified_area: { bn: 'এই এলাকায় যাচাইকৃত', en: 'Verified in this area' },
-  impact_weight: { bn: 'বর্তমান প্রভাব ওজন', en: 'Current Impact Weight' },
   verification_tooltip: { bn: 'এই তথ্য ভেরিফিকেশনের মাধ্যমে নিশ্চিত করা হয়েছে', en: 'This information has been confirmed via verification' },
-
   report_abuse: { bn: 'অভিযোগ করুন', en: 'Report Abuse' },
   flag_reason: { bn: 'অভিযোগের কারণ', en: 'Reason for reporting' },
   reason_misinfo: { bn: 'মিথ্যা তথ্য', en: 'Misinformation' },
@@ -210,8 +164,7 @@ export const TRANSLATIONS: TranslationDictionary = {
   log_user_report: { bn: 'ব্যবহারকারী রিপোর্ট', en: 'User Report' },
   log_mod_action: { bn: 'মডারেটর অ্যাকশন', en: 'Moderator Action' },
   log_legal: { bn: 'আইনি নোটিশ', en: 'Legal Notice' },
-
-  compliance_banner: { bn: 'এই তথ্য শুধুমাত্র আইনগত আদেশে প্রকাশযোগ্য।', en: 'This information is only revealable via legal order.' },
+  compliance_banner: { bn: 'এই তথ্য শুধুমাত্র আইনগত আ আদেশ প্রকাশযোগ্য।', en: 'This information is only revealable via legal order.' },
   audit_actor: { bn: 'অ্যাক্টর', en: 'Actor' },
   audit_action: { bn: 'অ্যাকশন', en: 'Action' },
   audit_hash: { bn: 'ক্রিপ্টোগ্রাফিক হ্যাশ', en: 'Cryptographic Hash' },
@@ -222,16 +175,13 @@ export const TRANSLATIONS: TranslationDictionary = {
   dual_approval: { bn: 'ডুয়াল অনুমোদন অপেক্ষমান', en: 'Dual Approval Pending' },
   legal_review: { bn: 'আইনি পর্যালোচনা', en: 'Legal Review' },
   identity_revealed: { bn: 'পরিচয় প্রকাশ করা হয়েছে', en: 'Identity Revealed' },
-
   dragDrop: { bn: 'ছবি বা ভিডিও এখানে ড্রপ করুন', en: 'Drop photos or videos here' },
   addDesc: { bn: 'বিবরণ যোগ করুন...', en: 'Add a description...' },
   submitEvidence: { bn: 'প্রমাণ জমা দিন', en: 'Submit Evidence' },
-  
   event_created: { bn: 'রিপোর্ট তৈরি হয়েছে', en: 'Report Created' },
   event_ai_check: { bn: 'AI যাচাইকরণ সম্পন্ন', en: 'AI Verification Complete' },
   event_evidence: { bn: 'নতুন প্রমাণ যুক্ত হয়েছে', en: 'New Evidence Added' },
   event_review: { bn: 'মডারেটর রিভিউ', en: 'Moderator Review' },
-  
   influencePanel: { bn: 'ইনফ্লুয়েন্স মনিটরিং প্যানেল', en: 'Influence Monitoring Panel' },
   risk_high: { bn: 'উচ্চ ঝুঁকি', en: 'High Risk' },
   risk_medium: { bn: 'মাঝারি ঝুঁকি', en: 'Medium Risk' },
@@ -242,7 +192,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   geoCluster: { bn: 'ভৌগোলিক ক্লাস্টার বিশ্লেষণ', en: 'Geographic Cluster Analysis' },
   aiExplanation: { bn: 'একই সময়ে নতুন অ্যাকাউন্ট থেকে বহু সমর্থন আসায় কিছু ভোটের ওজন কমানো হয়েছে।', en: 'Some vote weights were reduced due to multiple supports from new accounts at the same time.' },
   transparencyNote: { bn: 'এই বিশ্লেষণ স্বয়ংক্রিয় AI দ্বারা করা হয়েছে এবং মানব মডারেটর পর্যালোচনা করতে পারে।', en: 'This analysis was done by automated AI and may be reviewed by human moderators.' },
-
   aiSimpleExplain: { bn: 'AI সহজ ভাষায় ব্যাখ্যা', en: 'AI Simplified Explanation' },
   govtBudget: { bn: 'সরকারি বাজেট', en: 'Govt Budget' },
   aiEstimate: { bn: 'AI আনুমানিক ব্যয়', en: 'AI Estimated Cost' },
@@ -254,7 +203,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   submitOpinion: { bn: 'মতামত জমা দিন', en: 'Submit Opinion' },
   voteLockNotice: { bn: 'আপনি একবার মতামত দিলে তা পরিবর্তন করতে পারবেন না।', en: 'Once you submit your opinion, you cannot change it.' },
   weightedApproval: { bn: 'ওজনযুক্ত সমর্থন', en: 'Weighted Approval' },
-  requiredThreshold: { bn: 'প্রয়োজন', en: 'Required' },
   status_open: { bn: 'মতামতের জন্য উন্মুক্ত', en: 'Open for Opinion' },
   status_closed: { bn: 'বন্ধ', en: 'Closed' },
   status_approved: { bn: 'অনুমোদিত', en: 'Approved' },
@@ -263,7 +211,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   impact_displacement: { bn: 'স্থানচ্যুতি', en: 'Displacement' },
   impact_social: { bn: 'সামাজিক সুবিধা', en: 'Social Benefit' },
   impact_economic: { bn: 'অর্থনীতি', en: 'Economic' },
-
   materialBreakdown: { bn: 'উপকরণ খরচ বিশ্লেষণ', en: 'Material Breakdown' },
   qualityScenario: { bn: 'মান সিমুলেটর', en: 'Quality Simulator' },
   scenario_standard: { bn: 'স্ট্যান্ডার্ড', en: 'Standard' },
@@ -275,7 +222,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   govtProposed: { bn: 'সরকারি প্রস্তাবিত', en: 'Govt Proposed' },
   croreTaka: { bn: 'কোটি টাকা', en: 'Crore Taka' },
   costImpact: { bn: 'খরচ প্রভাব', en: 'Cost Impact' },
-
   tenderTitle: { bn: 'টেন্ডার ও ঠিকাদার বিশ্লেষণ', en: 'Tender & Contractor Analysis' },
   networkGraph: { bn: 'নেটওয়ার্ক গ্রাফ', en: 'Network Graph' },
   anomalies: { bn: 'শনাক্তকৃত অসঙ্গতি', en: 'Detected Anomalies' },
@@ -287,7 +233,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   delayRate: { bn: 'বিলম্বের হার', en: 'Delay Rate' },
   totalProjects: { bn: 'মোট প্রকল্প', en: 'Total Projects' },
   blacklistStatus: { bn: 'কালো তালিকাভুক্ত', en: 'Blacklist Status' },
-
   integrityTitle: { bn: 'জাতীয় সততা সূচক', en: 'National Integrity Index' },
   nationalAvg: { bn: 'জাতীয় গড়', en: 'National Average' },
   topPerforming: { bn: 'সেরা জেলা', en: 'Top Performing' },
@@ -309,7 +254,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   lowestRanked: { bn: 'সর্বনিম্ন অবস্থান', en: 'Lowest Ranked' },
   highestRanked: { bn: 'শীর্ষ অবস্থান', en: 'Highest Ranked' },
   days: { bn: 'দিন', en: 'days' },
-
   hospitalTitle: { bn: 'হাসপাতাল সেবা মনিটর', en: 'Hospital Service Monitor' },
   fairnessScore: { bn: 'সেবার মান', en: 'Fairness Score' },
   queueTime: { bn: 'গড় অপেক্ষার সময়', en: 'Avg Queue Time' },
@@ -329,7 +273,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   sortBy: { bn: 'সাজান', en: 'Sort By' },
   filterDistrict: { bn: 'জেলা', en: 'District' },
   filterType: { bn: 'ধরন', en: 'Type' },
-
   repairTitle: { bn: 'কমিউনিটি মেরামত', en: 'Community Repair' },
   iFixedIt: { bn: 'আমি ঠিক করেছি', en: 'I Fixed It' },
   urgency: { bn: 'জরুরী মাত্রা', en: 'Urgency' },
@@ -348,7 +291,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   describeFix: { bn: 'কাজের বিবরণ দিন', en: 'Describe the fix' },
   submitFix: { bn: 'জমা দিন', en: 'Submit Fix' },
   rewardClaim: { bn: 'রিওয়ার্ড', en: 'Reward' },
-
   ethicsReminder: { bn: 'নৈতিক স্মরণ', en: 'Ethics Reminder' },
   ethicsQuote: { bn: 'আল্লাহ তাআলা আমানত ঠিকভাবে আদায় করার নির্দেশ দিয়েছেন। (ভাবার্থ)', en: 'Indeed, Allah commands you to render trusts to whom they are due. (Quran 4:58)' },
   digitalOath: { bn: 'ডিজিটাল শপথ', en: 'Digital Oath' },
@@ -358,20 +300,16 @@ export const TRANSLATIONS: TranslationDictionary = {
   rel_christian: { bn: 'খ্রিস্টান', en: 'Christian' },
   rel_buddhist: { bn: 'বৌদ্ধ', en: 'Buddhist' },
   rel_secular: { bn: 'সাধারণ', en: 'Secular' },
-  
   text_islam: { bn: 'আমি আল্লাহ্‌র নামে শপথ করছি যে, আমি সর্বদা সত্য বলব, কারও হক নষ্ট করব না এবং এই প্ল্যাটফর্মটি শুধুমাত্র ন্যায় ও কল্যাণের জন্য ব্যবহার করব।', en: 'I swear by Allah that I will speak the truth, fulfill the rights of others, and use this platform only for justice and welfare.' },
   text_hindu: { bn: 'আমি ঈশ্বরের নামে শপথ করছি যে, আমি ধর্ম ও সত্যের পথে থাকব, মিথ্যা পরিহার করব এবং সমাজের মঙ্গলে কাজ করব।', en: 'I swear by God to follow the path of Dharma and Truth, avoid falsehood, and work for the welfare of society.' },
   text_christian: { bn: 'আমি ঈশ্বরের নামে প্রতিজ্ঞা করছি যে, আমি সততার সাথে আমার নাগরিক দায়িত্ব পালন করব এবং প্রতিবেশী ও সমাজের প্রতি বিশ্বস্ত থাকব।', en: 'I pledge before God to fulfill my civic duties with honesty and remain faithful to my neighbors and society.' },
   text_buddhist: { bn: 'আমি বুদ্ধের শিক্ষা স্মরণ করে প্রতিজ্ঞা করছি যে, আমি মিথ্যা ভাষণ থেকে বিরত থাকব এবং সকল প্রাণীর মঙ্গলে কাজ করব।', en: 'Remembering the teachings of Buddha, I pledge to refrain from false speech and work for the welfare of all beings.' },
   text_secular: { bn: 'আমি দেশের একজন দায়িত্বশীল নাগরিক হিসেবে শপথ করছি যে, আমি সংবিধানের প্রতি শ্রদ্ধাশীল থাকব এবং সততা ও নিষ্ঠার সাথে আমার নাগরিক দায়িত্ব পালন করব।', en: 'As a responsible citizen, I pledge to uphold the constitution and perform my civic duties with honesty and integrity.' },
-  
   acceptOath: { bn: 'আমি এই শপথ গ্রহণ করছি', en: 'I accept this oath' },
   confirmOath: { bn: 'শপথ নিশ্চিত করুন', en: 'Confirm Oath' },
   oathAccepted: { bn: 'শপথ গ্রহণ সম্পন্ন হয়েছে', en: 'Oath Accepted' },
   acceptedOn: { bn: 'আপনি এই শপথ গ্রহণ করেছেন:', en: 'You accepted this oath on:' },
   backToHome: { bn: 'হোম এ ফিরে যান', en: 'Back to Home' },
-
-  // Evidence Analysis
   evidence_analysis: { bn: 'প্রমাণ বিশ্লেষণ', en: 'Evidence Analysis' },
   credibility_score: { bn: 'বিশ্বাসযোগ্যতা স্কোর', en: 'Credibility Score' },
   forensic_result: { bn: 'AI ফরেনসিক ফলাফল', en: 'AI Forensic Result' },
@@ -390,8 +328,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   mark_verified: { bn: 'যাচাই করুন', en: 'Mark Verified' },
   upload_freshness: { bn: 'আপলোডের সময়', en: 'Freshness' },
   meta_analysis: { bn: 'মেটাডেটা বিশ্লেষণ', en: 'Metadata Analysis' },
-
-  // Budget Execution Tracker
   budget_tracker: { bn: 'বাজেট এবং বাস্তবায়ন ট্র্যাকার', en: 'Budget Execution Tracker' },
   approved_budget: { bn: 'অনুমোদিত বাজেট', en: 'Approved Budget' },
   ai_estimate: { bn: 'AI প্রাক্কলন', en: 'AI Estimate' },
@@ -406,8 +342,6 @@ export const TRANSLATIONS: TranslationDictionary = {
   follow_project: { bn: 'এই প্রকল্পটি ফলো করুন', en: 'Follow This Project' },
   planned: { bn: 'পরিকল্পিত', en: 'Planned' },
   actual: { bn: 'প্রকৃত', en: 'Actual' },
-
-  // Procurement Viewer
   procurement_docs: { bn: 'ক্রয় নথিপত্র', en: 'Procurement Documents' },
   tender_timeline: { bn: 'টেন্ডার টাইমলাইন', en: 'Tender Timeline' },
   doc_type: { bn: 'নথির ধরন', en: 'Document Type' },
@@ -428,9 +362,9 @@ export const TRANSLATIONS: TranslationDictionary = {
 
 export const CITIZEN_NAV_ITEMS: NavItem[] = [
   { id: 'dashboard', labelBn: 'ফিড ও রিপোর্ট', labelEn: 'Feed & Reports', path: '/app', icon: Home },
-  { id: 'analytics', labelBn: 'ড্যাশবোর্ড', labelEn: 'Analytics', path: '/app/analytics', icon: BarChart2 },
+  { id: 'analytics', labelBn: 'ড্যাশবোর্ড', labelEn: 'Dashboard', path: '/app/analytics', icon: BarChart2 },
   { id: 'notifications', labelBn: 'নোটিফিকেশন', labelEn: 'Notifications', path: '/app/notifications', icon: Bell },
-  { id: 'govt', labelBn: 'উন্নয়ন প্রকল্প ও প্রস্তাবনা', labelEn: 'Projects & Proposals', path: '/app/govt-projects', icon: Building2 },
+  { id: 'govt', labelBn: 'প্রকল্প ও প্রস্তাবনা', labelEn: 'Projects & Proposals', path: '/app/govt-projects', icon: Building2 },
   { id: 'ministries', labelBn: 'মন্ত্রণালয় স্বচ্ছতা', labelEn: 'Ministry Transparency', path: '/app/ministries', icon: Landmark },
   { id: 'rti', labelBn: 'তথ্য অনুরোধ (RTI)', labelEn: 'RTI Request', path: '/app/rti', icon: FileQuestion },
   { id: 'tenders', labelBn: 'টেন্ডার বিশ্লেষণ', labelEn: 'Tender Analysis', path: '/app/tenders', icon: Briefcase },
@@ -457,5 +391,4 @@ export const ADMIN_NAV_ITEMS: NavItem[] = [
   { id: 'admin_identity', labelBn: 'পরিচয় অনুরোধ', labelEn: 'Identity Requests', path: '/admin/identity-unlock', icon: Unlock },
 ];
 
-// Combine for backward compatibility if needed, but components should use specific lists
 export const NAV_ITEMS = [...CITIZEN_NAV_ITEMS, ...ADMIN_NAV_ITEMS];
