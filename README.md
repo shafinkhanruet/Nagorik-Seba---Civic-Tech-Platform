@@ -1,320 +1,257 @@
 
-# Nagorik Seba - Civic Tech Platform
+# Nagorik Seba / OpenNation (Civic Tech Platform)
+
+**Nagorik Seba** is a next-generation civic engagement platform designed to bridge the gap between citizens and government infrastructure in Bangladesh. It leverages AI, Blockchain-ready audit trails, and real-time data visualization to ensure transparency, accountability, and efficient public service delivery.
+
+![Version](https://img.shields.io/badge/version-1.0.0-blue)
+![License](https://img.shields.io/badge/license-MIT-green)
+![Status](https://img.shields.io/badge/status-Prototype-orange)
+
+---
+
+## 📖 Table of Contents
+1. [Project Overview](#1-project-overview)
+2. [Core Architecture](#2-core-architecture)
+3. [Roles & Access Control](#3-roles--access-control)
+4. [Crisis Mode Behavior](#4-crisis-mode-behavior)
+5. [Audit Ledger Rules](#5-audit-ledger-rules)
+6. [Identity Protection (DIPS)](#6-identity-protection-dips)
+7. [Installation & Setup](#7-setup--run-instructions)
+8. [API Reference](#8-full-api-reference)
+
+---
 
 ## 1. Project Overview
 
-**Nagorik Seba** is a next-generation civic engagement platform designed to bridge the gap between citizens and government infrastructure. It leverages AI, Blockchain-ready audit trails, and real-time data visualization to ensure transparency, accountability, and efficient public service delivery.
-
 The platform serves two primary user bases:
-1.  **Citizens**: Who report issues, vote on projects, track government spending, and file RTI requests.
+1.  **Citizens**: Who report issues, vote on projects, track government spending, and file RTI (Right to Information) requests.
 2.  **Administration**: Who manage resources, monitor corruption risks via AI, verify reports, and handle crisis situations.
 
----
-
-## 2. Problem Statement
-
-Traditional civic feedback loops are opaque, slow, and prone to manipulation.
-*   **Lack of Transparency**: Citizens cannot track where their tax money goes or the status of infrastructure projects.
-*   **Data Silos**: Corruption in tenders and procurement often hides within disconnected datasets.
-*   **Trust Deficit**: No verifiable metric exists to measure the integrity of local government units.
-*   **Inefficient Response**: Emergency situations and widespread infrastructure failures lack real-time coordinated response systems.
-
-**Nagorik Seba solves this by:**
-*   Quantifying "Integrity" and "Trust" scores.
-*   Using AI to detect procurement syndicates and vote manipulation.
-*   Providing an immutable audit log for all sensitive administrative actions.
+### Core Principles
+*   **Transparency**: Every administrative action (approval, freeze, edit) is logged in an immutable Audit Ledger.
+*   **Privacy**: Citizen identities are protected via the **Dual Identity Protection System (DIPS)**.
+*   **Ethics**: Infrastructure projects are weighed against a **Moral Impact Score (MIS)**.
 
 ---
 
-## 3. Architecture & Tech Stack
+## 2. Core Architecture
 
-### Frontend (Current Scope)
-*   **Framework**: React 18 + Vite + TypeScript
-*   **State Management**: Context API (Scalable to Redux/Zustand)
-*   **Styling**: Tailwind CSS + Lucid React Icons
-*   **Visualization**: Recharts for data analytics
-*   **Routing**: React Router DOM v6
+The current implementation uses a **Service-Oriented Frontend Architecture**:
 
-### Backend (Integration Ready)
-*   **API Pattern**: RESTful (JSON)
-*   **Authentication**: JWT + 2FA (OTP/Biometric)
-*   **RBAC**: Role-Based Access Control Middleware
-*   **AI Service**: Python/FastAPI (for Forensic Analysis & NLP)
+*   **Algorithmic Engine**: Local execution of TPE (Truth Probability Engine), IRBD (Bot Detection), and GBEA (Budget Estimation).
+*   **Background Workers**: Simulated cron jobs for RTI escalations, reputation decay, and notification dispatching.
+*   **Mock API Layer**: A stateful in-memory database simulating RESTful persistence.
 
-### Data Flow
-1.  **User Action**: Citizen submits a report.
-2.  **Edge Processing**: Frontend validates inputs and processes media.
-3.  **API Gateway**: Authenticates request and routes to Report Service.
-4.  **AI Pipeline**: Analyzes text for toxicity and media for authenticity (Deepfake detection).
-5.  **Consensus Layer**: Calculates "Truth Probability" based on reporter trust score + AI confidence.
-6.  **Admin Review**: High-risk items flag moderators; Low-risk items auto-publish.
+**Data Flow**:
+1.  **Submission**: Citizen submits report with geo-tagged media.
+2.  **Validation**: `EVP` (Evidence Verification Pipeline) checks media metadata/ELA.
+3.  **Scoring**: `TPE` calculates Truth Probability (0-100%).
+4.  **Resistance**: `IRBD` checks for bot-net voting patterns.
+5.  **Audit**: Action is hashed and appended to the ledger.
 
 ---
 
-## 4. Security & Ethics Model
+## 3. Roles & Access Control
 
-### Role-Based Access Control (RBAC)
-| Role | Permissions |
-| :--- | :--- |
-| **Citizen** | View Public Data, Submit Reports, Vote, Comment, File RTI. |
-| **Moderator** | Review Queue, Hide/Restore Content, View Basic Analytics. |
-| **Admin** | Manage Projects, Tenders, Hospitals, RTI Responses, Crisis Mode. |
-| **Superadmin** | Full System Access, Identity Unlock (Requires Dual Auth), Audit Log Deletion (Disabled). |
-
-### Ethics Safeguards
-*   **Identity Vault**: Reporter identities are encrypted. Unlocking requires a digital court order and dual-admin authorization.
-*   **AI Transparency**: Every AI decision (e.g., flagging a post) is logged with a "Why?" explanation.
-*   **Moral Impact Score**: Projects are evaluated not just on ROI but on social justice and environmental impact.
+| Role | Description | Permissions |
+| :--- | :--- | :--- |
+| **Citizen** | Verified General Public | Submit reports, vote, file RTI, view analytics. |
+| **Moderator** | Content Integrity Staff | Review flagged reports, manage discussion queues. |
+| **Admin** | Ministry/Dept Officials | Manage projects, analyze tenders, respond to RTI. |
+| **Superadmin**| System Controllers | Activate Crisis Mode, Unlock Identity (Dual-Auth). |
 
 ---
 
-## 5. Folder Structure
-
-```
-/
-├── public/              # Static assets
-├── src/
-│   ├── assets/          # Images and global styles
-│   ├── components/      # Reusable UI atoms and molecules
-│   │   ├── charts/      # Recharts wrappers
-│   │   ├── common/      # Buttons, Modals, Inputs
-│   │   └── widgets/     # Complex domain-specific widgets
-│   ├── config/          # Permission matrices and constants
-│   ├── context/         # React Context providers (Auth, Toast, Notifs)
-│   ├── hooks/           # Custom React hooks (API, Permissions)
-│   ├── layouts/         # Dashboard and Auth layouts
-│   ├── pages/           # Route views
-│   ├── services/        # API integration layer
-│   ├── types/           # TypeScript interfaces
-│   ├── utils/           # Helper functions
-│   ├── App.tsx          # Root component & Routing
-│   └── main.tsx         # Entry point
-├── .env                 # Environment variables
-├── metadata.json        # Manifest configuration
-└── package.json         # Dependencies
-```
+## 4. Crisis Mode Behavior
+**Crisis Mode** acts as a system-wide circuit breaker. When activated:
+*   **Write Operations Blocked**: All voting, report submissions, and RTI filings are suspended.
+*   **Auth Enforcement**: Active sessions may be terminated, requiring 2FA re-authentication.
+*   **Public Warning**: A system-wide priority alert is broadcast to all clients.
 
 ---
 
-## 6. Setup & Installation
+## 5. Audit Ledger Rules
+1.  **Immutability**: Entries cannot be deleted or modified.
+2.  **Chaining**: Each entry contains a `previousHash`, creating a SHA-256 linked list.
+3.  **Verifiability**: The `hash` field covers the actor, action, target, and timestamp.
+4.  **Completeness**: Any function marked `[AUDIT]` in the API reference must generate a ledger entry.
+
+---
+
+## 6. Identity Protection (DIPS)
+Identities are handled using a **2-of-2 Multi-Signature Reconstitution** model:
+*   **Encryption**: User PII is encrypted with a master key at rest.
+*   **Fragmentation**: The decryption key is split into two fragments.
+*   **Access**: Reconstitution requires Admin A's fragment, Admin B's fragment, and a verified **Court Order Hash**.
+
+---
+
+## 7. Setup & Run Instructions
 
 ### Prerequisites
-*   Node.js v18+
-*   npm or yarn
+*   Node.js v18.0.0+
+*   npm v9.0.0+
 
-### Commands
-
+### Installation
 ```bash
-# Install Dependencies
+git clone https://github.com/opennation/nagorik-seba-bd.git
+cd nagorik-seba-bd
 npm install
+```
 
-# Start Development Server
+### Execution
+```bash
+# Start development server
 npm run dev
 
-# Build for Production
+# Build for production
 npm run build
-
-# Preview Production Build
-npm run preview
 ```
 
-### Environment Variables (.env)
-
+### Environment Variables
+Create a `.env` file in the root directory:
 ```properties
-VITE_API_BASE_URL=https://api.nagorikseba.gov.bd/v1
-VITE_AI_SERVICE_URL=https://ai.nagorikseba.gov.bd
-VITE_MAPS_API_KEY=xyz_google_maps_key
-VITE_ENABLE_DEMO_MODE=false
+VITE_API_BASE_URL=https://api.opennation.gov.bd
+VITE_CRISIS_MODE_DEFAULT=false
+VITE_ENABLE_AUDIT_LEDGER=true
+VITE_REPUTATION_DECAY_RATE=0.1
 ```
 
 ---
 
-## 7. API Documentation
+## 8. FULL API Reference
 
-### A. Authentication & Identity
+### 8.1 AUTH
 
-#### Login
-*   **POST** `/api/auth/login`
-*   **Request**: `{ "identifier": "string", "password": "string" }`
-*   **Response**: `{ "step": "otp" | "complete", "token": "jwt_string?" }`
+#### `POST /api/auth/login`
+*   **Role**: Public
+*   **Description**: Initiates session and triggers OTP.
+*   **Request**: `{ "identifier": "01711000000", "password": "hash_password" }`
+*   **Response**: `{ "step": "otp", "tempToken": "tkn_9921" }`
 
-#### Verify OTP
-*   **POST** `/api/auth/verify-otp`
-*   **Request**: `{ "tempToken": "string", "otp": "string" }`
-*   **Response**: `{ "user": { "id": "uuid", "role": "admin", "name": "string" }, "token": "jwt_string" }`
+#### `POST /api/auth/verify-otp`
+*   **Role**: Public
+*   **Request**: `{ "otp": "123456", "tempToken": "tkn_9921" }`
+*   **Response**: `{ "user": { "id": "u-1", "role": "citizen" }, "token": "jwt_string" }`
+*   **Audit**: `LOG_USER_SESSION_START`
 
-#### User Profile
-*   **GET** `/api/users/me`
-*   **Headers**: `Authorization: Bearer <token>`
-*   **Response**: `{ "id": "uuid", "trustScore": number, "badges": [...] }`
+### 8.2 REPORTS
 
----
+#### `GET /api/reports`
+*   **Role**: Public
+*   **Description**: Fetch public reports feed.
 
-### B. Citizen Reports (Live Feed)
-
-#### Get Reports
-*   **GET** `/api/reports?district=dhaka&status=verified`
-*   **Response**: `[ { "id": "rep_1", "title": "...", "truthScore": 88, "aiSummary": "..." } ]`
-
-#### Submit Report
-*   **POST** `/api/reports`
+#### `POST /api/reports`
+*   **Role**: Citizen
+*   **Crisis Mode**: **BLOCKED**
 *   **Request**: 
     ```json
     {
-      "category": "infrastructure",
-      "description": "Road broken at Mirpur 10",
-      "location": { "lat": 23.81, "lng": 90.41, "address": "..." },
-      "isAnonymous": true,
+      "category": "Infrastructure",
+      "description": "Bridge crack at Uttara",
+      "location": { "lat": 23.81, "lng": 90.41 },
       "evidence": [{ "type": "image", "data": "base64..." }]
     }
     ```
-*   **Response**: `{ "id": "rep_new", "status": "pending_ai_review" }`
+*   **Response**: `{ "id": "rep_550", "truthScore": 82, "status": "pending_ai_review" }`
+*   **Audit**: `LOG_REPORT_SUBMISSION`
 
-#### Vote on Report
-*   **POST** `/api/reports/:id/vote`
-*   **Request**: `{ "type": "support" | "doubt" }`
-*   **Response**: `{ "newWeightedScore": 1250.5 }`
+#### `POST /api/reports/:id/vote`
+*   **Role**: Citizen
+*   **Request**: `{ "type": "support", "location": { "lat": 23.8, "lng": 90.4 } }`
+*   **Response**: `{ "newWeightedScore": 1450.2, "botRisk": 0.02 }`
+*   **Audit**: `LOG_VOTE_CAST`
 
----
+### 8.3 PROJECTS
 
-### C. Projects & Proposals
+#### `GET /api/projects`
+*   **Role**: Public
+*   **Description**: Fetch proposed infra projects for public voting.
 
-#### Get Projects
-*   **GET** `/api/projects`
-*   **Response**: List of government projects with budget and status.
+#### `POST /api/projects/:id/opinion`
+*   **Role**: Citizen
+*   **Description**: Submit structured opinion on project proposal.
+*   **Request**: `{ "vote": "support", "reason": "Necessary for traffic" }`
+*   **Crisis Mode**: **BLOCKED**.
 
-#### Submit Opinion (Voting)
-*   **POST** `/api/projects/:id/opinion`
-*   **Request**: `{ "vote": "support" | "modify" | "reject", "reason": "string" }`
-*   **Note**: Once submitted, the user's vote is hashed and locked.
+#### `POST /api/admin/projects/:id/status`
+*   **Role**: Admin
+*   **Description**: Freeze or Approve project based on budget/risk.
+*   **Request**: `{ "status": "frozen", "reason": "Budget Deviation" }`
+*   **Audit**: `LOG_PROJECT_OVERRIDE`
 
-#### Admin Action (Approval)
-*   **POST** `/api/admin/projects/:id/status`
-*   **Role**: `admin`, `superadmin`
-*   **Request**: 
-    ```json
-    {
-      "status": "approved" | "rejected" | "frozen",
-      "reason": "Public Interest",
-      "publicNotice": "Approved pending environmental clearance."
-    }
-    ```
+### 8.4 TENDERS
 
----
+#### `GET /api/tenders/network`
+*   **Role**: Admin/Citizen
+*   **Description**: Fetch node-link data for syndicate analysis.
+*   **Response**: `{ "nodes": [...], "links": [...], "syndicateProbability": 0.85 }`
 
-### D. Integrity & Transparency
+### 8.5 RTI (Right To Information)
 
-#### District Metrics
-*   **GET** `/api/districts/:id/integrity`
-*   **Response**:
-    ```json
-    {
-      "overallScore": 85,
-      "metrics": {
-        "complaints": 120,
-        "resolutionTimeAvg": 48,
-        "auditFlags": 2
-      }
-    }
-    ```
+#### `GET /api/rti`
+*   **Role**: Citizen
+*   **Description**: Fetch my requests or public library.
 
-#### Calibrate Algorithm (Admin)
-*   **POST** `/api/admin/districts/calibrate`
-*   **Role**: `superadmin`
+#### `POST /api/rti`
+*   **Role**: Citizen
+*   **Request**: `{ "department": "LGRD", "subject": "BoQ for Bridge ID 882", "isPublic": true }`
+*   **Response**: `{ "id": "rti_99", "trackingId": "TRK-001", "deadline": "2024-01-20" }`
+*   **Audit**: `SUBMIT_RTI`
+
+#### `POST /api/admin/rti/:id/response`
+*   **Role**: Admin
+*   **Request**: `{ "content": "Attached BoQ", "attachments": ["file.pdf"] }`
+*   **Audit**: `UPDATE_RTI_RESPONDED`
+
+### 8.6 HOSPITALS
+
+#### `GET /api/hospitals`
+*   **Description**: Fetch service quality metrics.
+*   **Response**: `[{ "id": "h1", "fairnessScore": 42, "bribeRisk": "High" }]`
+
+### 8.7 INTEGRITY INDEX
+
+#### `GET /api/districts/:id/integrity`
+*   **Response**: `{ "overallScore": 85, "rank": 1, "metrics": { "rtiResponse": 0.95 } }`
+
+#### `POST /api/admin/districts/calibrate`
+*   **Role**: Superadmin
 *   **Request**: `{ "weights": { "complaint": 60, "resolution": 40 } }`
-*   **Description**: Adjusts how the integrity score is calculated. Logged in Audit Trail.
+*   **Audit**: `LOG_ALGO_CALIBRATION`
 
----
+### 8.8 ADMIN & SECURITY
 
-### E. Procurement & Tenders
+#### `POST /api/admin/crisis/activate`
+*   **Role**: Superadmin (Dual-Auth)
+*   **Request**: `{ "reason": "System Breach", "duration": "24h" }`
+*   **Audit**: `LOG_SYSTEM_LOCKDOWN`
 
-#### Tender Network Analysis
-*   **GET** `/api/tenders/network`
-*   **Response**: Graph data (nodes/edges) showing relationships between contractors and officials to detect syndicates.
+#### `POST /api/admin/identity/unlock`
+*   **Role**: Superadmin (Dual-Auth)
+*   **Description**: Decrypt anonymous identity using court order.
+*   **Request**: `{ "reportId": "rep_5", "courtOrderHash": "sha256...", "adminKey1": "...", "adminKey2": "..." }`
+*   **Response**: `{ "identity": { "name": "Rahim Uddin", "nid": "..." } }`
+*   **Audit**: `LOG_IDENTITY_UNMASKING`
 
-#### Get Document
-*   **GET** `/api/tenders/docs/:id`
-*   **Response**: `{ "url": "...", "hash": "sha256...", "accessLevel": "public" }`
+#### `GET /api/admin/audit-logs`
+*   **Role**: Admin
+*   **Response**: `[{ "id": "l1", "action": "LOGIN", "hash": "0xabc...", "previousHash": "0x000..." }]`
 
----
+### 8.9 COMMUNITY REPAIR
 
-### F. RTI (Right To Information)
+#### `POST /api/community/repairs/:id/fix`
+*   **Role**: Citizen
+*   **Request**: `{ "proof": "base64_image", "description": "Pothole filled" }`
+*   **Response**: `{ "pendingCredits": 50, "status": "verifying" }`
+*   **Crisis Mode**: **BLOCKED**.
 
-#### Submit Request
-*   **POST** `/api/rti`
-*   **Request**:
-    ```json
-    {
-      "department": "Ministry of Health",
-      "subject": "Budget allocation 2023",
-      "details": "...",
-      "isPublic": true
-    }
-    ```
+## 9. Error Responses
 
-#### Admin Response
-*   **PATCH** `/api/rti/:id/response`
-*   **Role**: `admin`
-*   **Request**: `{ "response": "string", "attachments": [...] }`
-
----
-
-### G. Crisis Control & Security
-
-#### Activate Crisis Mode
-*   **POST** `/api/admin/crisis/activate`
-*   **Role**: `superadmin` (Requires Dual Auth headers)
-*   **Headers**: `X-Admin-1-Auth: code1`, `X-Admin-2-Auth: code2`
-*   **Request**: 
-    ```json
-    {
-      "category": "Cyber Attack",
-      "reason": "DDoS on voting nodes",
-      "modulesToFreeze": ["voting", "reports"]
-    }
-    ```
-
-#### Unlock Identity
-*   **POST** `/api/admin/identity/unlock`
-*   **Role**: `superadmin`
-*   **Request**: `{ "reportId": "string", "courtOrderHash": "string", "justification": "string" }`
-*   **Description**: Unmasks an anonymous user. This triggers an immutable audit log entry and notifies the legal team.
-
-#### Audit Logs
-*   **GET** `/api/admin/audit-logs`
-*   **Role**: `admin`, `superadmin`
-*   **Response**: List of all sensitive actions taken by admins and AI.
-
----
-
-### H. Notifications
-
-*   **GET** `/api/notifications`
-*   **POST** `/api/watchlist` - Follow a project, district, or issue.
-
----
-
-## 8. Error Handling
-
-Standard HTTP Status Codes are used:
-*   `200 OK`: Success
-*   `400 Bad Request`: Validation failure
-*   `401 Unauthorized`: Invalid token
-*   `403 Forbidden`: Insufficient RBAC permissions
-*   `429 Too Many Requests`: Rate limit exceeded
-*   `500 Internal Server Error`: Server-side failure
-
-**Error Response Format:**
-```json
-{
-  "error": {
-    "code": "PERMISSION_DENIED",
-    "message": "You do not have permission to unlock identity data.",
-    "traceId": "req_123abc"
-  }
-}
-```
-
----
-
-© 2024 Nagorik Seba. Built for the people, by the people.
+| Code | Status | Description |
+| :--- | :--- | :--- |
+| **403-CRISIS** | Forbidden | Operation blocked due to active Crisis Mode. |
+| **401-UNAUTH** | Unauthorized | Invalid session token or 2FA failure. |
+| **422-BOT** | Unprocessable | IRBD Algorithm flagged submission as bot behavior. |
+| **403-RBAC** | Forbidden | User role lacks permission for this endpoint. |
+| **500-CHAIN** | Error | Audit Ledger validation failed (Integrity Breach). |
